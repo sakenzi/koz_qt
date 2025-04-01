@@ -1,5 +1,6 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QLabel, QLineEdit, QVBoxLayout
+from PyQt6.QtWidgets import (QApplication, QWidget, QMainWindow, QPushButton, QLabel, 
+                             QLineEdit, QVBoxLayout)
 from PyQt6.QtCore import QSize, Qt
 
 
@@ -9,7 +10,6 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("kӨz")
         self.setGeometry(250, 50, 1000, 700)
-
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #856c9e;
@@ -21,8 +21,8 @@ class MainWindow(QMainWindow):
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
         self.layout = QVBoxLayout(self.central_widget)
-        self.layout.setSpacing(15)
-        self.layout.setContentsMargins(20, 20, 20, 20)
+        # self.layout.setSpacing()
+        # self.layout.setContentsMargins(30, 30, 30, 30)
 
         self.username_label = QLabel("Қолданушы аты-жөні:")
         self.username_label.setStyleSheet("""
