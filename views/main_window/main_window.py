@@ -1,7 +1,7 @@
 import sys
-from PyQt6.QtWidgets import (QApplication, QWidget, QMainWindow, QPushButton, QLabel, 
+from PyQt5.QtWidgets import (QApplication, QWidget, QMainWindow, QPushButton, QLabel, 
                              QLineEdit, QVBoxLayout)
-from PyQt6.QtCore import QSize, Qt
+from PyQt5.QtCore import QSize, Qt
 from system.system_info import SystemInfo
 
 

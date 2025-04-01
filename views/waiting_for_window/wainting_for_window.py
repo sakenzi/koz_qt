@@ -1,5 +1,5 @@
 import sys
-from PyQt6.QtWidgets import (QApplication, QWidget, QPushButton, QLabel, QVBoxLayout, QMainWindow)
+from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QLabel, QVBoxLayout, QMainWindow)
 
 
 class WaitingForWindow(QMainWindow):

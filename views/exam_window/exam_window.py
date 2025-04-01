@@ -1,6 +1,6 @@
-from PyQt6.QtWidgets import (QVBoxLayout, QWidget, QLabel, QLineEdit, QApplication, 
+from PyQt5.QtWidgets import (QVBoxLayout, QWidget, QLabel, QLineEdit, QApplication, 
                              QPushButton, QMainWindow, QHBoxLayout)
-from PyQt6.QtCore import QTimer, Qt, QPoint, QSequentialAnimationGroup, QPropertyAnimation
+from PyQt5.QtCore import QTimer, Qt, QPoint, QSequentialAnimationGroup, QPropertyAnimation, QAbstractAnimation
 import sys
 import time
 from system.timer import update_reverse_timer
@@ -55,28 +55,25 @@ class ExamWindow(QMainWindow):
 
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
-        self.main_layout = QHBoxLayout(self.central_widget)
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.sidebar = SideBarWidget(self.central_widget)
-        self.main_layout.addWidget(self.sidebar)
+        self.overlay_widget = QWidget(self.central_widget)
+        self.overlay_widget.setGeometry(0, 0, 1000, 700)
 
-        self.content_widget = QWidget()
+        self.sidebar = SideBarWidget(self.overlay_widget)
+
+        self.content_widget = QWidget(self.overlay_widget)
+        self.content_widget.setGeometry(0, 0, 1000, 700)
         self.content_widget.setStyleSheet("background-color: #ffffff;")
-        self.main_layout.addWidget(self.content_widget)
 
         self.total_time = 200
         self.start_time = time.time()
 
-        left_layout = QVBoxLayout()
-        left_layout.setSpacing(10)
-
         self.reverse_timer_label = TimerLabel(f"Тайминг: {self.total_time // 60}:{self.total_time % 60:02d}")
         self.reverse_timer_label.setParent(self.central_widget)  
-        self.reverse_timer_label.move(0, 0)
+        self.reverse_timer_label.move(10, 10)
 
-        self.sidebar_button = QPushButton("sss", self.content_widget)
-        self.sidebar_button.setGeometry(10, 60, 80, 30)
+        self.sidebar_button = QPushButton("Toggle", self.content_widget)
+        self.sidebar_button.setGeometry(10, 70, 80, 30)
         self.sidebar_button.setStyleSheet("""
             QPushButton {
                 background-color: #FFFFFF;
@@ -94,20 +91,22 @@ class ExamWindow(QMainWindow):
     def button_sidebar(self):
         anim_group = QSequentialAnimationGroup(self)
 
-        if self.sidebar.x() < 0:  
+        if self.sidebar.x() < 0:
             anim = QPropertyAnimation(self.sidebar, b"pos")
             anim.setDuration(200)
             anim.setStartValue(QPoint(-250, 0))
             anim.setEndValue(QPoint(0, 0))
             anim_group.addAnimation(anim)
-        else:  
+            self.reverse_timer_label.move(260, 10)
+        else:
             anim = QPropertyAnimation(self.sidebar, b"pos")
             anim.setDuration(200)
             anim.setStartValue(QPoint(0, 0))
             anim.setEndValue(QPoint(-250, 0))
             anim_group.addAnimation(anim)
+            self.reverse_timer_label.move(10, 10)
 
-        anim_group.start(QPropertyAnimation.DeletionPolicy. DeleteWhenStopped)
+        anim_group.start(QAbstractAnimation.DeletionPolicy.DeleteWhenStopped)
 
 app = QApplication(sys.argv)
 
