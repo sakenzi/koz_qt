@@ -1,8 +1,11 @@
 import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from PyQt5.QtWidgets import (QApplication, QWidget, QMainWindow, QPushButton, QLabel, 
-                             QLineEdit, QVBoxLayout)
-from PyQt5.QtCore import QSize, Qt
+                             QLineEdit, QVBoxLayout, QMessageBox)
+from PyQt5.QtCore import Qt
 from system.system_info import SystemInfo
+from controllers.main_window_controller import MainWindowController
 
 
 class MainWindow(QMainWindow):
@@ -10,7 +13,7 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("kӨz")
-        self.setGeometry(500, 250, 500, 100)
+        self.setGeometry(700, 250, 500, 100)
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #a3c0f0;
@@ -24,8 +27,8 @@ class MainWindow(QMainWindow):
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
         self.layout = QVBoxLayout(self.central_widget)
-        # self.layout.setSpacing()
-        # self.layout.setContentsMargins(20, 20, 20, 20)
+
+        self.controller = MainWindowController(self)
 
         self.title_label = QLabel("Сынақ алаңына өту")
         self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -144,7 +147,23 @@ class MainWindow(QMainWindow):
             }
         """)
 
+        self.start_button.clicked.connect(self.on_start_button_clicked)
         self.layout.addWidget(self.start_button)
+
+    def on_start_button_clicked(self):
+        success, message = self.controller.authenticate(
+            self.code_input.text(),
+            self.username_input.text(),
+            self.option_input.text(),
+            self.sys_info
+        )
+
+        if success:
+            QMessageBox.information(self, "Сәтті", message)
+            self.close
+        else:
+            QMessageBox.critical(self, "Сәтті емес", message)
+            
         
 app = QApplication(sys.argv)
 
