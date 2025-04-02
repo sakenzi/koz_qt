@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtCore import QPropertyAnimation, QPoint, QSequentialAnimationGroup
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QMainWindow, QLabel
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QMainWindow, QLabel 
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import QTimer, Qt, QPoint, QSequentialAnimationGroup, QPropertyAnimation, QAbstractAnimation
 import time
 
@@ -30,10 +30,10 @@ class TimerLabel(QLabel):
         """)
 
 class ImageLabel(QLabel):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
 
-        self.setFixedSize(1000, 1000)
+        self.setFixedSize(800, 900)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setStyleSheet("""
             QLabel {
@@ -82,6 +82,15 @@ class ExamWindow(QMainWindow):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_timer)
         self.timer.start(1000)
+
+        self.image_label = ImageLabel(self.central_widget)
+        pixmap = QPixmap('images/image1.jpg')
+        if pixmap.isNull():
+            print("Error: Could not load 'images/image1.jpg'. Check the file path.")
+            self.image_label.setText("Image not found")
+        else:
+            self.image_label.setPixmap(pixmap.scaled(500, 500, Qt.KeepAspectRatio))
+        self.image_label.move(10, 80)
 
         self.sidebar_button = QPushButton(" Тапсырмалар", self)
         self.sidebar_button.setIcon(QIcon('icons/show-sidebar-horiz.svg'))
