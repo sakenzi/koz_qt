@@ -2,25 +2,26 @@ import sys
 from PyQt5.QtCore import QPropertyAnimation, QPoint, QSequentialAnimationGroup
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QMainWindow, QLabel
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QTimer, Qt, QPoint, QSequentialAnimationGroup, QPropertyAnimation, QAbstractAnimation
+from PyQt5.QtCore import QTimer, Qt, QPoint, QSequentialAnimationGroup, QPropertyAnimation
+import time
 
 
-# class TimerLabel(QLabel):
-#     def __init__(self, text):
-#         super().__init__(text)
+class TimerLabel(QLabel):
+    def __init__(self, text, parent=None):
+        super().__init__(text, parent)
         
-#         self.setFixedSize(200, 50)
-#         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-#         self.setStyleSheet("""
-#             QLabel {
-#                 background-color: #FFFFFF;
-#                 padding: 10px;
-#                 border-radius: 8px;
-#                 border: 1px solid #E0E0E0;
-#                 font-size: 16px;
-#                 color: #333333;
-#             }
-#         """)
+        self.setFixedSize(200, 50)
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setStyleSheet("""
+            QLabel {
+                background-color: #343c42;
+                padding: 10px;
+                border-radius: 8px;
+                border: 1px solid #E0E0E0;
+                font-size: 16px;
+                color: #333333;
+            }
+        """)
 
 class ExamWindow(QMainWindow):
     def __init__(self):
@@ -29,16 +30,34 @@ class ExamWindow(QMainWindow):
         self.setGeometry(50, 50, 1850, 950)
         self.setStyleSheet("""
             QMainWindow {
-                background-color: #0c1214;
-                border: thick double #32a1ce;
-                border-radius: 20px;
+                background-color: #343c42;
+                color: white;
+                border-radius: 15px;
+                padding: 12px;
+                font-size: 16px;
+                border: none;
+            }
+            QPushButton: hover {
+                background-color: #195c1c;
+            }
+            QPushButton: pressed {
+                background-color: #166e1a;
             }
         """)
+
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
 
         self.blue_widget = QWidget(self)
         self.blue_widget.resize(700, 1300)
         self.blue_widget.setStyleSheet("background-color: #252c30;")
         self.blue_widget.move(-700, -700)
+
+        self.total_time = 200
+        self.start_time = time.time()
+
+        self.timer_label = TimerLabel(f"Тайминг: {self.total_time // 60}:{self.total_time % 60:02d}", self.central_widget)
+        self.timer_label.move(710, 10)
 
         self.sidebar_button = QPushButton(" Тапсырмалар", self)
         self.sidebar_button.setIcon(QIcon('exam_window/icons/show-sidebar-horiz.svg'))
@@ -61,6 +80,10 @@ class ExamWindow(QMainWindow):
         """)
         self.sidebar_button.clicked.connect(self.sidebar_blue_widget)
 
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_timer)
+        self.timer.start(1000)
+
     def sidebar_blue_widget(self):
         anim_group = QSequentialAnimationGroup(self)
 
@@ -78,6 +101,17 @@ class ExamWindow(QMainWindow):
             anim_group.addAnimation(anim)
 
         anim_group.start(QPropertyAnimation.DeleteWhenStopped)
+    
+    def update_timer(self):
+        elapsed = int(time.time() - self.start_time)
+        remaining_time = self.total_time - elapsed
+        if remaining_time >= 0:
+            minutes = remaining_time // 60
+            seconds = remaining_time % 60
+            self.timer_label.setText(f"Тайминг: {minutes}:{seconds:02d}")
+        else:
+            self.timer_label.setText("Тайминг: 0:00")
+            self.timer.stop()
 
 
 app = QApplication(sys.argv)

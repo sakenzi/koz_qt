@@ -1,8 +1,10 @@
 import sys
 from PyQt5.QtCore import QPropertyAnimation, QPoint, QSequentialAnimationGroup
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QMainWindow, QLabel 
+from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, 
+                             QMainWindow, QLabel, QTextEdit)
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtCore import QTimer, Qt, QPoint, QSequentialAnimationGroup, QPropertyAnimation, QAbstractAnimation
+from PyQt5.QtCore import (QTimer, Qt, QPoint, QSequentialAnimationGroup, 
+                          QPropertyAnimation, )
 import time
 
 
@@ -52,6 +54,29 @@ class ImageLabel(QLabel):
             }
         """)
 
+# class NotePadLabel(QLabel):
+#     def __init__(self, parent=None):
+#         super().__init__(parent)
+
+#         self.setFixedSize(1100, 900)
+#         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+#         self.setStyleSheet("""
+#             QLabel {
+#                 background-color: #343c42;
+#                 color: white;
+#                 border-radius: 15px;
+#                 padding: 12px;
+#                 font-size: 16px;
+#                 border: none;
+#             }
+#             QLabel: hover {
+#                 background-color: #195c1c;
+#             }
+#             QLabel: pressed {
+#                 background-color: #166e1a;
+#             }
+#         """)
+
 class ExamWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -91,6 +116,27 @@ class ExamWindow(QMainWindow):
         else:
             self.image_label.setPixmap(pixmap.scaled(500, 500, Qt.KeepAspectRatio))
         self.image_label.move(10, 80)
+
+        self.notepad = QTextEdit(self.central_widget)
+        self.notepad.setFixedSize(1100, 900)
+        self.notepad.setPlaceholderText("Тапсырманы жазыңыз")
+        self.notepad.setStyleSheet("""
+            QTextEdit {
+                background-color: #343c42;
+                color: white;
+                border-radius: 15px;
+                padding: 12px;
+                font-size: 16px;
+                border: none;
+            }
+            QTextEdit: hover {
+                background-color: #195c1c;
+            }
+            QTextEdit: pressed {
+                background-color: #166e1a;
+            }
+        """)
+        self.notepad.move(850, 80)
 
         self.sidebar_button = QPushButton(" Тапсырмалар", self)
         self.sidebar_button.setIcon(QIcon('icons/show-sidebar-horiz.svg'))
