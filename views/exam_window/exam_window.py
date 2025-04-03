@@ -36,7 +36,7 @@ class ImageLabel(QLabel):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.setFixedSize(800, 900)
+        self.setFixedSize(800, 925)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setStyleSheet("""
             QLabel {
@@ -236,7 +236,7 @@ class ExamWindow(QMainWindow):
         if pixmap.isNull():
             self.image_label.setText("Сурет табылмады")
         else:
-            self.image_label.setPixmap(pixmap.scaled(500, 500, Qt.KeepAspectRatio))
+            self.image_label.setPixmap(pixmap.scaled(700, 700, Qt.KeepAspectRatio))
         self.image_label.mousePressEvent = self.show_fullscreen_image
         image_text_layout.addWidget(self.image_label)
 
