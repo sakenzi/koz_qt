@@ -1,6 +1,7 @@
 from api_handlers.auth import login
 from models.models import AuthData
 from views.main_window.system.system_info import SystemInfo
+import websockets
 
 
 class MainWindowController:
@@ -18,16 +19,17 @@ class MainWindowController:
             mac_address=sys_info.mac_address,
             username=username,
             device_info=sys_info.pc_name,  
-            desk_number=int(option or "0")
+            desk_number=int(option or 0)
         )
 
         response = login(auth_data.to_dict())
+        print(f"{type(response)}, мәні: {response}")
         if response and "token" in response:
             self.token = response["token"]
             print(self.token)
-            return True, "Successfully"
+            return True, "Сәтті"
         else:
-            return False, "Authenticate Error"
+            return False, "Аутентификация қате"
         
     def get_token(self):
         return self.token

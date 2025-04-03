@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLabel, QVBoxLayout
-from PyQt5.QtCore import QTimer, Qt
+from PyQt5.QtCore import Qt
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 
@@ -10,6 +10,9 @@ class WaitingForWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("Күту зонасы")
+        self.setWindowFlags(self.windowFlags() | Qt.CustomizeWindowHint)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowCloseButtonHint)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowMaximizeButtonHint)
         self.setGeometry(50, 50, 1850, 950)
         self.setStyleSheet("""
             QMainWindow {
@@ -21,6 +24,8 @@ class WaitingForWindow(QMainWindow):
 
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
+        loading_layout = QVBoxLayout(self.central_widget)
+        loading_layout.setContentsMargins(10, 10, 10, 800)
 
         self.loading_label = QLabel(self.central_widget)
         self.loading_gif_path = "images/ZZ5H.gif"
@@ -34,20 +39,11 @@ class WaitingForWindow(QMainWindow):
 
         self.loading_label.setAlignment(Qt.AlignCenter)
         
-        window_width = 1850
-        window_height = 500
-        gif_size = 100
-        x = (window_width - gif_size) // 2  
-        y = (window_height - gif_size) // 2 
-        self.loading_label.move(x, y)
+        loading_layout.addWidget(self.loading_label)
+        loading_layout.setAlignment(Qt.AlignCenter)  
 
-        # self.timer = QTimer(self)
-        # self.timer.timeout.connect(self.close)
-        # self.timer.start(5000)
-
-app = QApplication(sys.argv)      
-
-window = WaitingForWindow()
-window.show()
-
-app.exec()
+if __name__ == "__main__":
+    app = QApplication(sys.argv)      
+    window = WaitingForWindow()
+    window.show()
+    sys.exit(app.exec())

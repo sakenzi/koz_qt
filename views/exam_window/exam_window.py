@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtCore import QPropertyAnimation, QPoint, QSequentialAnimationGroup
 from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, 
                              QMainWindow, QLabel, QTextEdit, QDialog,
-                             QVBoxLayout, QHBoxLayout,)
+                             QVBoxLayout, QHBoxLayout, QListWidget,)
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import (QTimer, Qt, QPoint, QSequentialAnimationGroup, 
                           QPropertyAnimation, QEvent, )
@@ -47,12 +47,11 @@ class ImageLabel(QLabel):
                 font-size: 16px;
                 border: none;
             }
-            QLabel: hover {
-                background-color: #195c1c;
+            QLabel:hover {
+                background-color: #4f565c;
             }
-            QLabel: pressed {
-                background-color: #166e1a; 
-            }
+            QLabel:pressed {
+                background-color: #808a91;
         """)
 
 class ExitWindow(QDialog):
@@ -170,6 +169,8 @@ class ExamWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Экзамен алаңы")
+        self.setWindowFlags(self.windowFlags() | Qt.CustomizeWindowHint)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowCloseButtonHint)
         self.setGeometry(50, 40, 1850, 800)
         self.setStyleSheet("""
             QMainWindow {
@@ -193,6 +194,62 @@ class ExamWindow(QMainWindow):
         self.blue_widget.setStyleSheet("background-color: #252c30;")
         self.blue_widget.move(-700, -700)
 
+        sidebar_layout = QVBoxLayout(self.blue_widget)
+        sidebar_layout.setContentsMargins(10, 10, 10, 10)
+        sidebar_layout.setSpacing(10)
+
+        sidebar_exit_layout = QHBoxLayout()
+
+        sidebar_title = QLabel("Тапсырмалар тізімі")
+        sidebar_title.setStyleSheet("""
+            QLabel {
+                color: white;
+                font-size: 18px;
+                font-weight: bold;
+            }
+        """)
+        sidebar_layout.addWidget(sidebar_title)
+
+        self.sidebar_exit_button = QPushButton()
+        self.sidebar_exit_button.setIcon(QIcon('icons/images.png'))
+        self.sidebar_exit_button.setStyleSheet("""
+            QPushButton {
+                background-color: #343c42;
+                color: white;
+                border-radius: 15px;
+                padding: 12px;
+                font-size: 16px;
+                border: none;
+            }
+            QPushButton:hover {
+                background-color: #4f565c;
+            }
+            QPushButton:pressed {
+                background-color: #808a91;
+            }
+        """)
+        sidebar_exit_layout.addWidget(self.sidebar_exit_button)
+        sidebar_exit_layout.addStretch()
+
+        self.task_list = QListWidget()
+        self.task_list.setStyleSheet("""
+            QListWidget {
+                background-color: #343c42;
+                color: white;
+                border-radius: 10px;
+                padding: 5px;
+            }
+            QListWidget::item:hover {
+                background-color: #4f565c;
+            }
+            QListWidget::item:selected {
+                background-color: #808a91;
+            }
+        """)
+        for i in range(5):
+            self.task_list.addItem(f"Тапсырма {i + 1}")
+        sidebar_layout.addWidget(self.task_list)
+    
         timer_tasks_layout = QHBoxLayout()
         timer_tasks_layout.setSpacing(10)
 
