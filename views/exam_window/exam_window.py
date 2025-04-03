@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton,
                              QVBoxLayout, QHBoxLayout,)
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import (QTimer, Qt, QPoint, QSequentialAnimationGroup, 
-                          QPropertyAnimation, )
+                          QPropertyAnimation, QEvent, )
 import time
 
 
@@ -123,6 +123,45 @@ class ExitWindow(QDialog):
     def exec(self):
         result = super().exec()
         return result == QDialog.DialogCode.Accepted
+    
+class FullaImageWindow(QMainWindow):
+    def __init__(self, pixmap_path, parent=None):
+        super().__init__(parent)
+
+        self.showFullScreen()
+        self.setWindowTitle("Толық экранды сурет")
+
+        central_widget = QWidget(self)
+        self.setCentralWidget(central_widget)
+        layout = QVBoxLayout(central_widget)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        self.image_label = QLabel(central_widget)
+        self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.image_label.setStyleSheet("background-color: black;")
+
+        self.pixmap = QPixmap(pixmap_path)
+        if not self.pixmap.isNull():
+            self.image_label.setPixmap(self.pixmap.scaled(self.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+        else:
+            self.image_label.setText("Сурет табылмады")
+
+        layout.addWidget(self.image_label)
+        self.image_label.installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        if obj == self.image_label and event.type() == QEvent.Type.MouseButtonPress:
+            self.close()
+            return True
+        return super().eventFilter(obj , event)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Escape:
+            self.close()
+
+    def closeEvent(self, event):
+        super().closeEvent(event)
+
 
 class ExamWindow(QMainWindow):
     def __init__(self):
@@ -155,14 +194,17 @@ class ExamWindow(QMainWindow):
         self.timer.timeout.connect(self.update_timer)
         self.timer.start(1000)
 
+        self.image_files = ['images/image1.jpg']
+        self.current_image_index = 0
+
         self.image_label = ImageLabel(self.central_widget)
-        pixmap = QPixmap('images/image1.jpg')
+        pixmap = QPixmap(self.image_files[self.current_image_index])
         if pixmap.isNull():
-            print("Error: Could not load 'images/image1.jpg'. Check the file path.")
-            self.image_label.setText("Image not found")
+            self.image_label.setText("Сурет табылмады")
         else:
             self.image_label.setPixmap(pixmap.scaled(500, 500, Qt.KeepAspectRatio))
         self.image_label.move(10, 80)
+        self.image_label.mousePressEvent = self.show_fullscreen_image
 
         self.notepad = QTextEdit(self.central_widget)
         self.notepad.setFixedSize(1100, 900)
@@ -260,6 +302,16 @@ class ExamWindow(QMainWindow):
         exit_window = ExitWindow(self)
         if exit_window.exec():
             self.close()
+
+    
+    def show_fullscreen_image(self, event):
+        pixmap = QPixmap(self.image_files[self.current_image_index])
+        if not pixmap.isNull():
+            fullscreen_window = FullaImageWindow(self.image_files[self.current_image_index], self)
+            fullscreen_window.show()
+        else:
+            print(f"Сурет жүктелмеді {self.image_files[self.current_image_index]}")
+
 
 app = QApplication(sys.argv)
 window = ExamWindow()
