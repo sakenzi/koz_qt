@@ -13,7 +13,7 @@ class TimerLabel(QLabel):
     def __init__(self, text, parent=None):
         super().__init__(text, parent)
         
-        self.setGeometry(750, 300, 300, 300)
+        self.setFixedSize(200, 50)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setStyleSheet("""
             QLabel {
@@ -96,11 +96,7 @@ class ExitWindow(QDialog):
                 border: 1px solid #FF4040;
             }
             QPushButton:hover {
-                background-color: #c93a40;
-            }
-            QPushButton:pressed {
-                background-color: #e80e17;
-            }
+                background-color: #CC0000;
         """)
         yes_button.clicked.connect(self.accept)
         button_layout.addWidget(yes_button)
@@ -170,7 +166,7 @@ class ExamWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Экзамен алаңы")
-        self.setGeometry(50, 40, 1850, 800)
+        self.setGeometry(50, 50, 1850, 950)
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #0c1214;
@@ -185,16 +181,13 @@ class ExamWindow(QMainWindow):
         main_layout.setContentsMargins(10, 10, 10, 10)
         main_layout.setSpacing(10)
 
-        tasks_exit_timer_layout = QHBoxLayout()
-        tasks_exit_timer_layout.setSpacing(10)
-
         self.blue_widget = QWidget(self)
         self.blue_widget.resize(700, 1300)
         self.blue_widget.setStyleSheet("background-color: #252c30;")
-        self.blue_widget.move(-700, -700)
+        self.blue_widget.move(-700, 0)  
 
         timer_tasks_layout = QHBoxLayout()
-        timer_tasks_layout.setSpacing(10)
+        timer_tasks_layout.setSpacing(20)
 
         self.total_time = 200
         self.start_time = time.time()
@@ -216,15 +209,15 @@ class ExamWindow(QMainWindow):
                 border: none;
             }
             QPushButton:hover {
-                background-color: #4f565c;
+                background-color: #195c1c;
             }
             QPushButton:pressed {
-                background-color: #808a91;
+                background-color: #166e1a;
             }
         """)
         self.sidebar_button.clicked.connect(self.sidebar_blue_widget)
         timer_tasks_layout.addWidget(self.sidebar_button)
-        timer_tasks_layout.addStretch()
+        timer_tasks_layout.addStretch()  
 
         image_text_layout = QHBoxLayout()
         image_text_layout.setSpacing(20)
@@ -252,16 +245,16 @@ class ExamWindow(QMainWindow):
                 border: none;
             }
             QTextEdit:hover {
-                background-color: #4f565c;
+                background-color: #195c1c;
             }
             QTextEdit:pressed {
-                background-color: #808a91;
+                background-color: #166e1a;
             }
         """)
-        image_text_layout.addWidget(self.notepad, stretch=1)
+        image_text_layout.addWidget(self.notepad, stretch=1)  
 
         exit_layout = QHBoxLayout()
-        exit_layout.addStretch()
+        exit_layout.addStretch()  
 
         self.exit_button = QPushButton("Аяқтау")
         self.exit_button.setIcon(QIcon("icons/free-exit-icon-2860-thumb.png"))
@@ -275,23 +268,21 @@ class ExamWindow(QMainWindow):
                 border: none;
             }
             QPushButton:hover {
-                background-color: #c93a40;
+                background-color: #195c1c;
             }
             QPushButton:pressed {
-                background-color: #e80e17;
+                background-color: #166e1a;
             }
         """)
         self.exit_button.clicked.connect(self.on_exit_clicked)
         exit_layout.addWidget(self.exit_button)
 
-        tasks_exit_timer_layout.addLayout(timer_tasks_layout)
-        tasks_exit_timer_layout.addLayout(exit_layout)
-        main_layout.addLayout(tasks_exit_timer_layout)
-        main_layout.addLayout(image_text_layout, stretch=1)
+        main_layout.addLayout(timer_tasks_layout)
+        main_layout.addLayout(image_text_layout, stretch=1)  
+        main_layout.addLayout(exit_layout)
 
     def sidebar_blue_widget(self):
         anim_group = QSequentialAnimationGroup(self)
-
         if self.blue_widget.x() < 0:
             anim = QPropertyAnimation(self.blue_widget, b"pos")
             anim.setDuration(700)
@@ -304,7 +295,6 @@ class ExamWindow(QMainWindow):
             anim.setStartValue(QPoint(0, 0))
             anim.setEndValue(QPoint(-700, 0))
             anim_group.addAnimation(anim)
-
         anim_group.start(QPropertyAnimation.DeleteWhenStopped)
 
     def update_timer(self):
