@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from PyQt5.QtWidgets import (QApplication, QWidget, QMainWindow, QPushButton, QLabel, 
-                             QLineEdit, QVBoxLayout, QMessageBox)
+                             QLineEdit, QVBoxLayout, QMessageBox, QFormLayout)
 from PyQt5.QtCore import Qt
 from system.system_info import SystemInfo
 from controllers.main_window_controller import MainWindowController
@@ -14,6 +14,8 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("kӨz")
         self.setGeometry(700, 250, 500, 100)
+        self.setWindowFlags(self.windowFlags() | Qt.CustomizeWindowHint)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowMaximizeButtonHint)
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #a3c0f0;
@@ -42,6 +44,8 @@ class MainWindow(QMainWindow):
         """)
         self.layout.addWidget(self.title_label)
 
+        auth_layout = QFormLayout()
+
         self.username_label = QLabel("Қолданушы аты-жөні:")
         self.username_label.setStyleSheet("""
             QLabel {
@@ -51,7 +55,7 @@ class MainWindow(QMainWindow):
                 padding: 10px;
             }
         """)
-        self.layout.addWidget(self.username_label)
+        auth_layout.addWidget(self.username_label)
 
         self.username_input = QLineEdit()
         self.username_input.setPlaceholderText("Аты-жөніңізді жазыңыз")
@@ -64,12 +68,12 @@ class MainWindow(QMainWindow):
                 font-size: 14px;
                 color: #333333;
             }
-            QLineEdit: focus {
+            QLineEdit:focus {
                 border: 1px solid #1E90FF;
                 box-shadow: 0 0 5px rgba(30, 144, 255, 0.3);
             }
         """)
-        self.layout.addWidget(self.username_input)
+        auth_layout.addWidget(self.username_input)
 
         self.code_label = QLabel("Код:")
         self.code_label.setStyleSheet("""
@@ -80,7 +84,7 @@ class MainWindow(QMainWindow):
                 padding: 10px;
             }
         """)
-        self.layout.addWidget(self.code_label)
+        auth_layout.addWidget(self.code_label)
 
         self.code_input = QLineEdit()
         self.code_input.setPlaceholderText("Кодты енгізіңіз")
@@ -93,12 +97,12 @@ class MainWindow(QMainWindow):
                 font-size: 14px;
                 color: #333333;
             }
-            QLineEdit: focus {
+            QLineEdit:focus {
                 border: 1px solid #1E90FF;
                 box-shadow: 0 0 5px rgba(30, 144, 255, 0.3);
             }
         """)
-        self.layout.addWidget(self.code_input)
+        auth_layout.addWidget(self.code_input)
 
         self.option_label = QLabel("Нұсқа:")
         self.option_label.setStyleSheet("""
@@ -109,7 +113,7 @@ class MainWindow(QMainWindow):
                 padding: 10px;
             }
         """)
-        self.layout.addWidget(self.option_label)
+        auth_layout.addWidget(self.option_label)
 
         self.option_input = QLineEdit()
         self.option_input.setPlaceholderText("Нұсқаны енгізіңіз")
@@ -122,12 +126,12 @@ class MainWindow(QMainWindow):
                 font-size: 14px;
                 color: #333333;
             }
-            QLineEdit: focus {
+            QLineEdit:focus {
                 border: 1px solid #1E90FF;
                 box-shadow: 0 0 5px rgba(30, 144, 255, 0.3);                 
             }
         """)
-        self.layout.addWidget(self.option_input)
+        auth_layout.addWidget(self.option_input)
 
         self.start_button = QPushButton("Бастау")
         self.start_button.setStyleSheet("""
@@ -139,16 +143,18 @@ class MainWindow(QMainWindow):
                 font-size: 16px;
                 border: none;
             }
-            QPushButton: hover {
+            QPushButton:hover {
                 background-color: #195c1c;
             }
-            QPushButton: pressed {
+            QPushButton:pressed {
                 background-color: #166e1a;
             }
         """)
 
         self.start_button.clicked.connect(self.on_start_button_clicked)
-        self.layout.addWidget(self.start_button)
+        auth_layout.addWidget(self.start_button)
+
+        self.layout.addLayout(auth_layout)
 
     def on_start_button_clicked(self):
         success, message = self.controller.authenticate(

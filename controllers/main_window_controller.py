@@ -18,16 +18,16 @@ class MainWindowController:
             mac_address=sys_info.mac_address,
             username=username,
             device_info=sys_info.pc_name,  
-            desk_number=str(option or "0")
+            desk_number=int(option or "0")
         )
 
         response = login(auth_data.to_dict())
-        if response and "access_token" in response:
-            self.access_token = response["access_token"]
-            print(self.access_token)
+        if response and "token" in response:
+            self.token = response["token"]
+            print(self.token)
             return True, "Successfully"
         else:
             return False, "Authenticate Error"
         
     def get_token(self):
-        return self.access_token
+        return self.token
