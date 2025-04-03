@@ -1,8 +1,12 @@
 import requests
+from dotenv import load_dotenv
+import os
 
+
+load_dotenv()
 
 def login(data):
-    url = "http://localhost:8000/auth/client/login"
+    url = os.getenv("API_AUTH_URL")
     print(data)
     try: 
         response = requests.post(url, json=data)
@@ -10,4 +14,3 @@ def login(data):
         return response.json
     except requests.exceptions.RequestException as e:
         print(f"Ошибка отправке запроса: {e}")
-        return None

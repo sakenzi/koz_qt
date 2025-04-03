@@ -1,7 +1,8 @@
 import sys
 from PyQt5.QtCore import QPropertyAnimation, QPoint, QSequentialAnimationGroup
 from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, 
-                             QMainWindow, QLabel, QTextEdit)
+                             QMainWindow, QLabel, QTextEdit, QDialog,
+                             QVBoxLayout, QHBoxLayout,)
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import (QTimer, Qt, QPoint, QSequentialAnimationGroup, 
                           QPropertyAnimation, )
@@ -54,28 +55,74 @@ class ImageLabel(QLabel):
             }
         """)
 
-# class NotePadLabel(QLabel):
-#     def __init__(self, parent=None):
-#         super().__init__(parent)
+class ExitWindow(QDialog):
+    def __init__(self, parent = None):
+        super().__init__(parent)
 
-#         self.setFixedSize(1100, 900)
-#         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-#         self.setStyleSheet("""
-#             QLabel {
-#                 background-color: #343c42;
-#                 color: white;
-#                 border-radius: 15px;
-#                 padding: 12px;
-#                 font-size: 16px;
-#                 border: none;
-#             }
-#             QLabel: hover {
-#                 background-color: #195c1c;
-#             }
-#             QLabel: pressed {
-#                 background-color: #166e1a;
-#             }
-#         """)
+        self.setWindowTitle("Растау")
+        self.setGeometry(750, 300, 300, 300)
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #F5F5F5;
+                border: 1px solid #E0E0E0;
+                border-radius: 10px;
+            }
+        """)
+
+        layout = QVBoxLayout(self)
+        layout.setSpacing(10)
+        layout.setContentsMargins(20, 20, 20, 20)
+
+        question_label = QLabel("Сіз шынымен шыққыңыз келеді ме?\n Мүмкін тапсырма жауаптарын бір тексеріп шығарсыз!")
+        question_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        question_label.setStyleSheet("""
+            QLabel{
+                font-size: 16px;
+                color: #333333;
+        """)
+        layout.addWidget(question_label)
+
+        button_layout = QHBoxLayout(self)
+        button_layout.setSpacing(10)
+
+        yes_button = QPushButton("Иә,аяқтағым келеді\n Мен өзіме сенімдімін!")
+        yes_button.setStyleSheet("""
+            QPushButton {
+                background-color: #FF4040;
+                color: white;
+                border-radius: 10px;
+                padding: 8px 20px;
+                font-size: 14px;
+                border: 1px solid #FF4040;
+            }
+            QPushButton:hover {
+                background-color: #CC0000;
+        """)
+        yes_button.clicked.connect(self.accept)
+        button_layout.addWidget(yes_button)
+
+        no_button = QPushButton("Өзіме сенімді емеспін,\n Тағы бір тексеріп алайын")
+        no_button.setStyleSheet("""
+            QPushButton {
+                background-color: #1E90FF;
+                color: white;
+                border-radius: 10px;
+                padding: 8px 20px;
+                font-size: 14px;
+                border: 1px solid #1E90FF;
+            }
+            QPushButton:hover {
+                background-color: #104E8B;
+            }
+        """)
+        no_button.clicked.connect(self.reject)
+        button_layout.addWidget(no_button)
+
+        layout.addLayout(button_layout)
+
+    def exec(self):
+        result = super().exec()
+        return result == QDialog.DialogCode.Accepted
 
 class ExamWindow(QMainWindow):
     def __init__(self):
@@ -159,6 +206,27 @@ class ExamWindow(QMainWindow):
         """)
         self.sidebar_button.clicked.connect(self.sidebar_blue_widget)
 
+        self.exit_button = QPushButton("Аяқтау", self)
+        self.exit_button.setIcon(QIcon("icons/free-exit-icon-2860-thumb.png"))
+        self.exit_button.setGeometry(1690, 10, 150, 50)
+        self.exit_button.setStyleSheet("""
+            QPushButton {
+                background-color: #c42329;
+                color: white;
+                border-radius: 15px;
+                padding: 12px;
+                font-size: 16px;
+                border: none;
+            }
+            QPushButton: hover {
+                background-color: #195c1c;
+            }
+            QPushButton: pressed {
+                background-color: #166e1a;
+            }
+        """)
+        self.exit_button.clicked.connect(self.on_exit_clicked)
+
     def sidebar_blue_widget(self):
         anim_group = QSequentialAnimationGroup(self)
 
@@ -188,6 +256,10 @@ class ExamWindow(QMainWindow):
             self.timer_label.setText("Тайминг: 0:00")
             self.timer.stop()
 
+    def on_exit_clicked(self):
+        exit_window = ExitWindow(self)
+        if exit_window.exec():
+            self.close()
 
 app = QApplication(sys.argv)
 window = ExamWindow()
