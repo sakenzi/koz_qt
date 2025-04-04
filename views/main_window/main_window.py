@@ -163,7 +163,7 @@ class MainWindow(QMainWindow):
             self.option_input.text(),
             self.sys_info
         )
-
+        
         if success:
             QMessageBox.information(self, "Сәтті", message)
             self.close

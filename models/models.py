@@ -16,3 +16,8 @@ class AuthData:
             "device_info": self.device_info,  
             "desk_number": self.desk_number
         }
+    
+
+class TaskData:
+    def __init__(self, ):
+        pass

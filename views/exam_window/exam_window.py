@@ -171,6 +171,7 @@ class ExamWindow(QMainWindow):
         self.setWindowTitle("Экзамен алаңы")
         self.setWindowFlags(self.windowFlags() | Qt.CustomizeWindowHint)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowCloseButtonHint)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowMinimizeButtonHint)
         self.setGeometry(50, 40, 1850, 800)
         self.setStyleSheet("""
             QMainWindow {
@@ -190,7 +191,7 @@ class ExamWindow(QMainWindow):
         tasks_exit_timer_layout.setSpacing(10)
 
         self.blue_widget = QWidget(self)
-        self.blue_widget.resize(700, 1300)
+        self.blue_widget.resize(700, 1000)
         self.blue_widget.setStyleSheet("background-color: #252c30;")
         self.blue_widget.move(-700, -700)
 
@@ -198,7 +199,8 @@ class ExamWindow(QMainWindow):
         sidebar_layout.setContentsMargins(10, 10, 10, 10)
         sidebar_layout.setSpacing(10)
 
-        sidebar_exit_layout = QHBoxLayout()
+        sidebar_tasks_layout = QHBoxLayout()
+        sidebar_tasks_layout.setSpacing(20)
 
         sidebar_title = QLabel("Тапсырмалар тізімі")
         sidebar_title.setStyleSheet("""
@@ -208,10 +210,11 @@ class ExamWindow(QMainWindow):
                 font-weight: bold;
             }
         """)
-        sidebar_layout.addWidget(sidebar_title)
+        sidebar_tasks_layout.addWidget(sidebar_title, stretch=2)
 
         self.sidebar_exit_button = QPushButton()
-        self.sidebar_exit_button.setIcon(QIcon('icons/images.png'))
+        self.sidebar_exit_button.resize(100, 10)
+        self.sidebar_exit_button.setIcon(QIcon('icons/x.svg'))
         self.sidebar_exit_button.setStyleSheet("""
             QPushButton {
                 background-color: #343c42;
@@ -228,8 +231,8 @@ class ExamWindow(QMainWindow):
                 background-color: #808a91;
             }
         """)
-        sidebar_exit_layout.addWidget(self.sidebar_exit_button)
-        sidebar_exit_layout.addStretch()
+        self.sidebar_exit_button.clicked.connect(self.sidebar_blue_widget)
+        sidebar_tasks_layout.addWidget(self.sidebar_exit_button)
 
         self.task_list = QListWidget()
         self.task_list.setStyleSheet("""
@@ -248,6 +251,9 @@ class ExamWindow(QMainWindow):
         """)
         for i in range(5):
             self.task_list.addItem(f"Тапсырма {i + 1}")
+        
+
+        sidebar_layout.addLayout(sidebar_tasks_layout)
         sidebar_layout.addWidget(self.task_list)
     
         timer_tasks_layout = QHBoxLayout()
@@ -363,7 +369,7 @@ class ExamWindow(QMainWindow):
             anim_group.addAnimation(anim)
 
         anim_group.start(QPropertyAnimation.DeleteWhenStopped)
-
+    
     def update_timer(self):
         elapsed = int(time.time() - self.start_time)
         remaining_time = self.total_time - elapsed
@@ -387,7 +393,7 @@ class ExamWindow(QMainWindow):
             fullscreen_window.show()
         else:
             print(f"Сурет жүктелмеді {self.image_files[self.current_image_index]}")
-
+        
 app = QApplication(sys.argv)
 window = ExamWindow()
 window.show()
