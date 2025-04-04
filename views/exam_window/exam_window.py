@@ -2,8 +2,8 @@ import sys
 from PyQt5.QtCore import QPropertyAnimation, QPoint, QSequentialAnimationGroup
 from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, 
                              QMainWindow, QLabel, QTextEdit, QDialog,
-                             QVBoxLayout, QHBoxLayout, QListWidget,)
-from PyQt5.QtGui import QIcon, QPixmap
+                             QVBoxLayout, QHBoxLayout, QListWidget, QPlainTextEdit)
+from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor
 from PyQt5.QtCore import (QTimer, Qt, QPoint, QSequentialAnimationGroup, 
                           QPropertyAnimation, QEvent, )
 import time
@@ -24,11 +24,8 @@ class TimerLabel(QLabel):
                 font-size: 16px;
                 border: none;
             }
-            QLabel: hover {
-                background-color: #195c1c;
-            }
-            QLabel: pressed {
-                background-color: #166e1a;
+            QLabel:hover {
+                background-color: #4f565c;
             }
         """)
 
@@ -234,7 +231,9 @@ class ExamWindow(QMainWindow):
         self.sidebar_exit_button.clicked.connect(self.sidebar_blue_widget)
         sidebar_tasks_layout.addWidget(self.sidebar_exit_button)
 
+        self.task_list_font = QFont("", 20)
         self.task_list = QListWidget()
+        self.task_list.setFont(self.task_list_font)
         self.task_list.setStyleSheet("""
             QListWidget {
                 background-color: #343c42;
@@ -303,10 +302,10 @@ class ExamWindow(QMainWindow):
         self.image_label.mousePressEvent = self.show_fullscreen_image
         image_text_layout.addWidget(self.image_label)
 
-        self.notepad = QTextEdit()
+        self.notepad = QPlainTextEdit()
         self.notepad.setPlaceholderText("Тапсырманы жазыңыз")
         self.notepad.setStyleSheet("""
-            QTextEdit {
+            QPlainTextEdit {
                 background-color: #343c42;
                 color: white;
                 border-radius: 15px;
@@ -314,10 +313,10 @@ class ExamWindow(QMainWindow):
                 font-size: 16px;
                 border: none;
             }
-            QTextEdit:hover {
+            QPlainTextEdit:hover {
                 background-color: #4f565c;
             }
-            QTextEdit:pressed {
+            QPlainTextEdit:pressed {
                 background-color: #808a91;
             }
         """)
@@ -380,6 +379,7 @@ class ExamWindow(QMainWindow):
         else:
             self.timer_label.setText("Тайминг: 0:00")
             self.timer.stop()
+            self.close()
 
     def on_exit_clicked(self):
         exit_window = ExitWindow(self)
