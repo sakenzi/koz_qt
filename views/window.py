@@ -1,21 +1,44 @@
-from PyQt5.QtCore import Qt
-import time
+import sys
+from PyQt5.QtWidgets import QApplication
 from main_window.main_window import MainWindow
-from main_window.system.system_info import SystemInfo
-from waiting_for_window.wainting_for_window import WaitingForWindow
+from exam_window.exam_window import ExamWindow
+from waiting_for_window.waiting_for_window import WaitingForWindow
 
 
-class Window(MainWindow):
+class ApplicationManager:
     def __init__(self):
-        super().__init__()
+        self.app = QApplication(sys.argv)
+        self.main_window = MainWindow(self)
+        self.exam_window = ExamWindow(self)
+        self.waiting_window = WaitingForWindow(self)
+        self.token = None
 
-        self.sys_info = SystemInfo()
+    def set_token(self, token):
+        self.token = token
+        print(f"Token stored in ApplicationManager: {self.token}")
 
-    def open_waiting_for_window(self):
-        self.waiting_for_window = WaitingForWindow()
-        self.waiting_for_window.show()
-        self.hide()
+    def get_token(self):
+        return self.token
 
-    def closeEvent(self, event):
-        event.ignore()
-        self.hide()
+    def show_main_window(self):
+        self.main_window.show()
+        self.exam_window.hide()
+        self.waiting_window.hide()
+
+    def show_exam_window(self):
+        self.exam_window.show()
+        self.main_window.hide()
+        self.waiting_window.hide()
+
+    def show_waiting_window(self):
+        self.waiting_window.show()
+        self.main_window.hide()
+        self.exam_window.hide()
+
+    def run(self):
+        self.show_main_window()
+        sys.exit(self.app.exec_())
+
+if __name__ == "__main__":
+    app_manager = ApplicationManager()
+    app_manager.run()

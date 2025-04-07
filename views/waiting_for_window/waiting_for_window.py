@@ -1,14 +1,15 @@
 import sys
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QLabel, QVBoxLayout,
+from PyQt5.QtWidgets import (QMainWindow, QWidget, QLabel, QVBoxLayout,
                              QHBoxLayout,)
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 
 
 class WaitingForWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, app_manager):
         super().__init__()
+        self.app_manager = app_manager
 
         self.setWindowTitle("Күту зонасы")
         self.setWindowFlags(self.windowFlags() | Qt.CustomizeWindowHint)
@@ -36,7 +37,7 @@ class WaitingForWindow(QMainWindow):
         quote.setContentsMargins(100, 250, 100, 100)
 
         self.loading_label = QLabel(self.central_widget)
-        self.loading_gif_path = "images/ZZ5H.gif"
+        self.loading_gif_path = "waiting_for_window/images/ZZ5H.gif"
         self.loading_gif = QtGui.QMovie(self.loading_gif_path)
         if not self.loading_gif.isValid():
             self.loading_label.setText("Ошибка: GIF не найден или поврежден")
@@ -65,8 +66,10 @@ class WaitingForWindow(QMainWindow):
         loading_layout.addLayout(loading)
         loading_layout.addLayout(quote)
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)      
-    window = WaitingForWindow()
-    window.show()
-    sys.exit(app.exec())
+        # self.timer = QTimer(self)
+        # self.timer.timeout.connect(self.switch_to_exam)
+        # self.timer.start(5000)
+
+    def switch_to_exam(self):
+        self.app_manager.show_exam_window()
+        self.hide()

@@ -11,6 +11,6 @@ def login(data):
     try: 
         response = requests.post(url, json=data)
         response.raise_for_status()
-        return response.json
+        return response
     except requests.exceptions.RequestException as e:
-        print(f"Ошибка отправке запроса: {e}")
+        print(f"қате: {e}")

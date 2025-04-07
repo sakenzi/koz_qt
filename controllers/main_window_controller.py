@@ -1,6 +1,6 @@
 from api_handlers.auth import login
 from models.models import AuthData
-from views.main_window.system.system_info import SystemInfo
+from system.system_info import SystemInfo
 import websockets
 
 
@@ -24,12 +24,18 @@ class MainWindowController:
 
         response = login(auth_data.to_dict())
         print(f"{type(response)}, мәні: {response}")
-        if response and "token" in response:
-            self.token = response["token"]
-            print(self.token)
-            return True, "Сәтті"
+        if response:  
+            json_response = response.json()  
+            print(f"JSON response: {json_response}")
+            if "access_token" in json_response:  
+                self.token = json_response["access_token"]
+                print(f"Token saved: {self.token}")
+                return True, "Сәтті"
+            else:
+                return False, "Аутентификация қате: токен жоқ"
         else:
-            return False, "Аутентификация қате"
-        
+            return False, "Аутентификация қате: серверден жауап жоө"
+
     def get_token(self):
         return self.token
+    

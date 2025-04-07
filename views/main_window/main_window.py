@@ -6,12 +6,19 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QMainWindow, QPushButton, QL
 from PyQt5.QtCore import Qt
 from system.system_info import SystemInfo
 from controllers.main_window_controller import MainWindowController
+from system.tray_manager import TrayManager
+from system.logs import Logs
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, app_manager):
         super().__init__()
+        self.app_manager = app_manager
 
+        self.logs = Logs()
+        self.tray_manager = TrayManager(self)
+
+        print(self.tray_manager)
         self.setWindowTitle("kӨz")
         self.setGeometry(700, 250, 500, 100)
         self.setWindowFlags(self.windowFlags() | Qt.CustomizeWindowHint)
@@ -70,7 +77,6 @@ class MainWindow(QMainWindow):
             }
             QLineEdit:focus {
                 border: 1px solid #1E90FF;
-                box-shadow: 0 0 5px rgba(30, 144, 255, 0.3);
             }
         """)
         auth_layout.addWidget(self.username_input)
@@ -99,7 +105,6 @@ class MainWindow(QMainWindow):
             }
             QLineEdit:focus {
                 border: 1px solid #1E90FF;
-                box-shadow: 0 0 5px rgba(30, 144, 255, 0.3);
             }
         """)
         auth_layout.addWidget(self.code_input)
@@ -127,8 +132,7 @@ class MainWindow(QMainWindow):
                 color: #333333;
             }
             QLineEdit:focus {
-                border: 1px solid #1E90FF;
-                box-shadow: 0 0 5px rgba(30, 144, 255, 0.3);                 
+                border: 1px solid #1E90FF;               
             }
         """)
         auth_layout.addWidget(self.option_input)
@@ -165,15 +169,10 @@ class MainWindow(QMainWindow):
         )
         
         if success:
+            token = self.controller.get_token()
+            self.app_manager.set_token(token)
             QMessageBox.information(self, "Сәтті", message)
-            self.close
+            self.app_manager.show_waiting_window()
         else:
             QMessageBox.critical(self, "Сәтті емес", message)
             
-        
-app = QApplication(sys.argv)
-
-window = MainWindow()
-window.show()
-
-app.exec()

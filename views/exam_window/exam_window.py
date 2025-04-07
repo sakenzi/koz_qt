@@ -7,6 +7,7 @@ from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor, QPainter, QTextFormat
 from PyQt5.QtCore import (QTimer, Qt, QPoint, QSequentialAnimationGroup, 
                           QPropertyAnimation, QEvent, QSize, QRect, )
 import time
+import os
 
 
 class TimerLabel(QLabel):
@@ -267,8 +268,10 @@ class CodeEditor(QPlainTextEdit):
         self.setExtraSelections(extra_selections)
 
 class ExamWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, app_manager):
         super().__init__()
+        self.app_manager = app_manager
+
         self.setWindowTitle("Экзамен алаңы")
         self.setWindowFlags(self.windowFlags() | Qt.CustomizeWindowHint)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowCloseButtonHint)
@@ -315,7 +318,7 @@ class ExamWindow(QMainWindow):
 
         self.sidebar_exit_button = QPushButton()
         self.sidebar_exit_button.resize(100, 10)
-        self.sidebar_exit_button.setIcon(QIcon('icons/x.svg'))
+        self.sidebar_exit_button.setIcon(QIcon('exam_window/icons/x.svg'))
         self.sidebar_exit_button.setStyleSheet("""
             QPushButton {
                 background-color: #343c42;
@@ -371,7 +374,7 @@ class ExamWindow(QMainWindow):
         timer_tasks_layout.addWidget(self.timer_label)
 
         self.sidebar_button = QPushButton(" Тапсырмалар")
-        self.sidebar_button.setIcon(QIcon('icons/show-sidebar-horiz.svg'))
+        self.sidebar_button.setIcon(QIcon('exam_window/icons/show-sidebar-horiz.svg'))
         self.sidebar_button.setStyleSheet("""
             QPushButton {
                 background-color: #343c42;
@@ -395,7 +398,7 @@ class ExamWindow(QMainWindow):
         image_text_layout = QHBoxLayout()
         image_text_layout.setSpacing(20)
 
-        self.image_files = ['images/image1.jpg']
+        self.image_files = ['exam_window/images/image1.jpg']
         self.current_image_index = 0
         self.image_label = ImageLabel()
         pixmap = QPixmap(self.image_files[self.current_image_index])
@@ -414,7 +417,7 @@ class ExamWindow(QMainWindow):
         exit_layout.addStretch()
 
         self.exit_button = QPushButton("Аяқтау")
-        self.exit_button.setIcon(QIcon("icons/free-exit-icon-2860-thumb.png"))
+        self.exit_button.setIcon(QIcon("exam_window/icons/free-exit-icon-2860-thumb.png"))
         self.exit_button.setStyleSheet("""
             QPushButton {
                 background-color: #c42329;
@@ -482,7 +485,3 @@ class ExamWindow(QMainWindow):
         else:
             print(f"Сурет жүктелмеді {self.image_files[self.current_image_index]}")
         
-app = QApplication(sys.argv)
-window = ExamWindow()
-window.show()
-app.exec()
