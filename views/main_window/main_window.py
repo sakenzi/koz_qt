@@ -1,7 +1,7 @@
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
-from PyQt5.QtWidgets import (QApplication, QWidget, QMainWindow, QPushButton, QLabel, 
+from PyQt5.QtWidgets import (QWidget, QMainWindow, QPushButton, QLabel, 
                              QLineEdit, QVBoxLayout, QMessageBox, QFormLayout)
 from PyQt5.QtCore import Qt
 from system.system_info import SystemInfo
@@ -167,12 +167,13 @@ class MainWindow(QMainWindow):
             self.option_input.text(),
             self.sys_info
         )
-        
         if success:
             token = self.controller.get_token()
+            websocket = self.controller.get_websocket()
             self.app_manager.set_token(token)
+            self.app_manager.set_websocket(websocket)
             QMessageBox.information(self, "Сәтті", message)
             self.app_manager.show_waiting_window()
+            self.hide()
         else:
             QMessageBox.critical(self, "Сәтті емес", message)
-            

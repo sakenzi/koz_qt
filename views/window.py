@@ -12,6 +12,7 @@ class ApplicationManager:
         self.exam_window = ExamWindow(self)
         self.waiting_window = WaitingForWindow(self)
         self.token = None
+        self.websocket = None
 
     def set_token(self, token):
         self.token = token
@@ -19,6 +20,12 @@ class ApplicationManager:
 
     def get_token(self):
         return self.token
+    
+    def set_websocket(self, websocket):
+        self.websocket = websocket
+
+    def get_websocket(self):
+        return self.websocket
 
     def show_main_window(self):
         self.main_window.show()

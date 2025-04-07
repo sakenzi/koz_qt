@@ -1,15 +1,17 @@
-import sys
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QLabel, QVBoxLayout,
                              QHBoxLayout,)
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt
 from PyQt5 import QtGui
 from PyQt5 import QtCore
+from controllers.main_window_controller import MainWindowController
 
 
 class WaitingForWindow(QMainWindow):
     def __init__(self, app_manager):
         super().__init__()
         self.app_manager = app_manager
+
+        self.controller = MainWindowController(self)
 
         self.setWindowTitle("Күту зонасы")
         self.setWindowFlags(self.windowFlags() | Qt.CustomizeWindowHint)
@@ -48,9 +50,7 @@ class WaitingForWindow(QMainWindow):
 
         self.loading_label.setAlignment(Qt.AlignCenter)
 
-        # self.quote_font = QtGui.QFont("sfdsdfsfs", 20)
         self.quote_label = QLabel("Сабыр түбі сары - алтын!")
-        # self.quote_label.setFont(self.quote_font)
         self.quote_label.setStyleSheet("""
             QLabel {
                 color: #868b8f;
@@ -66,10 +66,10 @@ class WaitingForWindow(QMainWindow):
         loading_layout.addLayout(loading)
         loading_layout.addLayout(quote)
 
-        # self.timer = QTimer(self)
-        # self.timer.timeout.connect(self.switch_to_exam)
-        # self.timer.start(5000)
+    def check_for_message(self):
+        if self.controller.has_message():
+            self.switch_to_exam()
 
-    def switch_to_exam(self):
+    def switch_to_exam(self):        
         self.app_manager.show_exam_window()
         self.hide()

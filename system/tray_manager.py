@@ -7,7 +7,7 @@ class TrayManager:
         self.parent = parent
 
         self.tray_icon = QSystemTrayIcon(parent)
-        self.tray_icon.setIcon(QIcon('system/icons/11003355.png'))
+        self.tray_icon.setIcon(QIcon('icons/11003355.png'))
 
         self.setup_tray()
 

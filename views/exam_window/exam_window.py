@@ -1,13 +1,11 @@
-import sys
 from PyQt5.QtCore import QPropertyAnimation, QPoint, QSequentialAnimationGroup
-from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, 
+from PyQt5.QtWidgets import (QWidget, QPushButton, 
                              QMainWindow, QLabel, QTextEdit, QDialog,
                              QVBoxLayout, QHBoxLayout, QListWidget, QPlainTextEdit)
 from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor, QPainter, QTextFormat
 from PyQt5.QtCore import (QTimer, Qt, QPoint, QSequentialAnimationGroup, 
                           QPropertyAnimation, QEvent, QSize, QRect, )
 import time
-import os
 
 
 class TimerLabel(QLabel):
