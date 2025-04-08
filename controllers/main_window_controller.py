@@ -1,10 +1,10 @@
 from api_handlers.auth import login
-from models.models import AuthData
+from models.models import AuthData, TaskData
 from system.system_info import SystemInfo
 import websocket
 import threading
 from threading import Event 
-
+import json
 
 class MainWindowController:
     def __init__(self, view):
@@ -14,9 +14,9 @@ class MainWindowController:
         self.ws_thread = None
         self.message_received = Event()  
         self.room_id = None
+        self.task_data = None
         self.last_message = None
         self.message_count = 0
-        
 
     def websocket_thread(self, websocket_url, token):
         ws = websocket.WebSocket()
@@ -26,12 +26,18 @@ class MainWindowController:
         print(f"WebSocket успешно подключен с токеном: {token}")
         while True:
             message = ws.recv()
-            print(f"Сообщение получено: {message}")
-            if message:
-                self.last_message = message
-                self.message_count += 1  
-                print(f"Количество сообщений: {self.message_count}")
-                self.message_received.set()
+            # print(f"Сообщение получено: {message}")
+            self.last_message = message
+            self.message_count += 1
+            if self.message_count == 1 and message == "You are connected as client.":
+                print("Первое сообщение — подключение, ждем следующее")
+                continue
+            try:
+                message_data = json.loads(message)
+                self.task_data = TaskData.from_dict(message_data)
+                self.message_received.set()  
+            except json.JSONDecodeError as e:
+                print(f"Ошибка парсинга сообщения: {e}")
 
     def connect_to_websocket(self, token, websocket_url):
         if not websocket_url:
@@ -94,5 +100,16 @@ class MainWindowController:
         return self.websocket
 
     def has_message(self):
-        if self.message_count == 2:
-            return True
+        is_set = self.message_received.is_set()
+        print(f"Проверка сообщения: {is_set}, Количество сообщений: {self.message_count}")
+        return is_set
+
+    def clear_message(self):
+        self.message_received.clear()
+        print("Событие сообщения сброшено")
+
+    def get_task_data(self):
+        return self.task_data
+    
+    def get_room_id(self):
+        return self.room_id

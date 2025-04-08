@@ -7,7 +7,7 @@ from PyQt5.QtCore import Qt
 from system.system_info import SystemInfo
 from controllers.main_window_controller import MainWindowController
 from system.tray_manager import TrayManager
-from system.logs import Logs
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 
 class MainWindow(QMainWindow):
@@ -15,9 +15,9 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.app_manager = app_manager
 
-        self.logs = Logs()
+        # self.logs = Logs()
         self.tray_manager = TrayManager(self)
-        self.logs.start()
+        # self.logs.start()
 
         print(self.tray_manager)
         self.setWindowTitle("kӨz")

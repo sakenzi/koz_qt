@@ -1,9 +1,10 @@
 import sys
 from PyQt5.QtWidgets import QApplication
-from main_window.main_window import MainWindow
-from exam_window.exam_window import ExamWindow
-from waiting_for_window.waiting_for_window import WaitingForWindow
-
+from views.main_window.main_window import MainWindow
+from views.exam_window.exam_window import ExamWindow
+from views.waiting_for_window.waiting_for_window import WaitingForWindow
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 class ApplicationManager:
     def __init__(self):

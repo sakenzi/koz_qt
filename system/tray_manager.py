@@ -1,6 +1,8 @@
 from PyQt5.QtWidgets import QSystemTrayIcon, QMenu, QApplication, QAction
 from PyQt5.QtGui import QIcon
-
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 class TrayManager:
     def __init__(self, parent):

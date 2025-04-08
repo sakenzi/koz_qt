@@ -1,16 +1,12 @@
-from PyQt5.QtWidgets import (QMainWindow, QWidget, QLabel, QVBoxLayout,
-                             QHBoxLayout,)
+from PyQt5.QtWidgets import (QMainWindow, QWidget, QLabel, QVBoxLayout, QHBoxLayout)
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5 import QtGui
 from PyQt5 import QtCore
-from controllers.main_window_controller import MainWindowController
-
 
 class WaitingForWindow(QMainWindow):
     def __init__(self, app_manager):
         super().__init__()
         self.app_manager = app_manager
-
         self.controller = self.app_manager.get_controller()
         if self.controller is None:
             print("Ошибка: контроллер не передан в WaitingForWindow")
@@ -31,12 +27,10 @@ class WaitingForWindow(QMainWindow):
 
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
-
         loading_layout = QVBoxLayout(self.central_widget)
         loading_layout.setContentsMargins(10, 100, 10, 800)
 
         loading = QHBoxLayout()
-
         quote = QHBoxLayout()
         quote.setContentsMargins(100, 250, 100, 100)
 
@@ -54,17 +48,12 @@ class WaitingForWindow(QMainWindow):
 
         self.quote_label = QLabel("Сабыр түбі сары - алтын!")
         self.quote_label.setStyleSheet("""
-            QLabel {
-                color: #868b8f;
-                font-size: 30px;
-                font-weight: bold;
-            }
+            QLabel { color: #868b8f; font-size: 30px; font-weight: bold; }
         """)
         quote.addWidget(self.quote_label)
         
         loading.addWidget(self.loading_label)
         loading_layout.setAlignment(Qt.AlignCenter)  
-        
         loading_layout.addLayout(loading)
         loading_layout.addLayout(quote)
 
@@ -74,11 +63,12 @@ class WaitingForWindow(QMainWindow):
 
     def check_for_message(self):
         if self.controller and self.controller.has_message():
-            self.check_timer.stop()
-            print("Сообщение получено, переключаемся на ExamWindow")
+            print("Сообщение с заданиями получено, переключаемся на ExamWindow")
+            self.check_timer.stop()  
             self.switch_to_exam()
+            self.controller.clear_message()  
 
     def switch_to_exam(self):  
-        print('ssssssss')      
+        print("Переход на ExamWindow")      
         self.app_manager.show_exam_window()
         self.hide()

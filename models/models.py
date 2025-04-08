@@ -19,5 +19,54 @@ class AuthData:
     
 
 class TaskData:
-    def __init__(self, task_option_id, room_id, ):
-        pass
+    def __init__(self, task_option_id, task_id, option_file, duration, room_id=None):
+        self.task_option_id = task_option_id
+        self.task_id = task_id
+        self.option_file = option_file
+        self.duration = duration
+        self.room_id = room_id
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            task_option_id=data.get("task_option_id"),
+            task_id=data.get("task_id"),
+            option_file=data.get("option_file", []),
+            duration=data.get("duration"),
+            room_id=data.get("room_id")
+        )
+    
+    def to_dict(self):
+        return {
+            "task_option_id": self.task_option_id,
+            "task_id": self.task_id,
+            "option_file": self.option_file,
+            "duration": self.duration,
+            "room_id": self.room_id
+        }
+    
+class Answer:
+    def __init__(self, order, text):
+        self.order = order
+        self.text = text
+
+    def to_dict(self):
+        return {
+            "order": self.order,
+            "text": self.text
+        }
+    
+class ExamResult:
+    def __init__(self, room_id, task_option_id, answers, logs):
+        self.room_id = room_id
+        self.task_option_id = task_option_id
+        self.answers = answers
+        self.logs = logs
+
+    def to_dict(self):
+        return {
+            "room_id": int(self.room_id) if self.room_id is not None else None,
+            "task_option_id": self.task_option_id,
+            "answers": [answer.to_dict() for answer in self.answers],
+            "logs": self.logs
+        }
