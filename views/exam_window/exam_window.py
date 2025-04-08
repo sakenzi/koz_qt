@@ -15,6 +15,7 @@ def resource_path(relative_path):
         return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(os.path.abspath("."), relative_path)
 
+
 class TimerLabel(QLabel):
     def __init__(self, text, parent=None):
         super().__init__(text, parent)
@@ -24,6 +25,7 @@ class TimerLabel(QLabel):
             QLabel { background-color: #343c42; color: white; border-radius: 15px; padding: 12px; font-size: 16px; border: none; }
             QLabel:hover { background-color: #4f565c; }
         """)
+
 
 class ImageLabel(QLabel):
     def __init__(self, parent=None):
@@ -35,6 +37,7 @@ class ImageLabel(QLabel):
             QLabel:hover { background-color: #4f565c; }
             QLabel:pressed { background-color: #808a91; }
         """)
+
 
 class ExitWindow(QDialog):
     def __init__(self, parent=None):
@@ -79,6 +82,7 @@ class ExitWindow(QDialog):
         result = super().exec()
         return result == QDialog.DialogCode.Accepted
 
+
 class FullaImageWindow(QMainWindow):
     def __init__(self, image_path, parent=None):
         super().__init__(parent)
@@ -109,6 +113,7 @@ class FullaImageWindow(QMainWindow):
         if event.key() == Qt.Key.Key_Escape:
             self.close()
 
+
 class LineNumberArea(QWidget):
     def __init__(self, editor):
         super().__init__(editor)
@@ -119,6 +124,7 @@ class LineNumberArea(QWidget):
 
     def paintEvent(self, event):
         self.editor.line_number_area_paint_event(event)
+
 
 class CodeEditor(QPlainTextEdit):
     def __init__(self, parent=None):
@@ -172,7 +178,7 @@ class CodeEditor(QPlainTextEdit):
                 number = str(block_number + 1)
                 painter.setPen(Qt.white)
                 painter.drawText(
-                    QPoint(self.line_number_area.width() - 5 - self.fontMetrics().horizontalAdvance(number), 
+                    QPoint(self.line_number_area.width() - 5 - self.fontMetrics().horizontalAdvance(number),
                            int(top + self.fontMetrics().height())),
                     number
                 )
@@ -192,6 +198,7 @@ class CodeEditor(QPlainTextEdit):
             selection.cursor.clearSelection()
             extra_selections.append(selection)
         self.setExtraSelections(extra_selections)
+
 
 class ExamWindow(QMainWindow):
     def __init__(self, app_manager):
@@ -219,12 +226,14 @@ class ExamWindow(QMainWindow):
         self.task_files = self.task_data.option_file if self.task_data else []
         self.total_time = self.task_data.duration * 60 if self.task_data else 200
         self.notes = {}
-        self.temp_image_paths = []  
+        self.temp_image_paths = []
         self.exam_controller.set_task_data(self.task_data)
         self.exam_controller.start_monitoring()
         print(f"Room ID: {self.exam_controller.room_id}, Task Option ID: {self.exam_controller.task_option_id}")
 
         self.save_base64_images()
+
+        self.image_label = ImageLabel()
 
         self.blue_widget = QWidget(self)
         self.blue_widget.resize(700, 1000)
@@ -293,7 +302,6 @@ class ExamWindow(QMainWindow):
         image_text_layout = QHBoxLayout()
         image_text_layout.setSpacing(20)
 
-        self.image_label = ImageLabel()
         if self.temp_image_paths:
             pixmap = QPixmap(self.temp_image_paths[0])
             if pixmap and not pixmap.isNull():
@@ -328,6 +336,10 @@ class ExamWindow(QMainWindow):
         main_layout.addLayout(tasks_exit_timer_layout)
         main_layout.addLayout(image_text_layout, stretch=1)
 
+        if self.task_files:
+            self.task_list.setCurrentRow(0)
+            self.change_task(0)
+
     def save_base64_images(self):
         if not self.task_files:
             return
@@ -339,9 +351,9 @@ class ExamWindow(QMainWindow):
                 continue
             try:
                 if isinstance(base64_data, list) and len(base64_data) > 0:
-                    base64_string = base64_data[0]  
+                    base64_string = base64_data[0]
                 else:
-                    base64_string = base64_data  
+                    base64_string = base64_data
 
                 if isinstance(base64_string, str):
                     if base64_string.startswith("data:image"):
@@ -437,7 +449,7 @@ class ExamWindow(QMainWindow):
             print("Результаты отправлены успешно")
         else:
             print("Ошибка при отправке результатов")
-        self.cleanup_temp_files()  
+        self.cleanup_temp_files()
         self.close()
 
     def show_fullscreen_image(self, event):
@@ -448,5 +460,5 @@ class ExamWindow(QMainWindow):
 
     def closeEvent(self, event):
         self.exam_controller.stop_monitoring()
-        self.cleanup_temp_files()  
+        self.cleanup_temp_files()
         super().closeEvent(event)
