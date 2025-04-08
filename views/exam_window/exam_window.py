@@ -5,8 +5,15 @@ from PyQt5.QtCore import (QEvent, QSize, QRect)
 import time
 import base64
 import os
+import sys
 import tempfile
 from controllers.exam_tasks_controller import ExamTasksController
+
+
+def resource_path(relative_path):
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
 
 class TimerLabel(QLabel):
     def __init__(self, text, parent=None):
@@ -212,12 +219,11 @@ class ExamWindow(QMainWindow):
         self.task_files = self.task_data.option_file if self.task_data else []
         self.total_time = self.task_data.duration * 60 if self.task_data else 200
         self.notes = {}
-        self.temp_image_paths = []  # Список для хранения путей к временным файлам
+        self.temp_image_paths = []  
         self.exam_controller.set_task_data(self.task_data)
         self.exam_controller.start_monitoring()
         print(f"Room ID: {self.exam_controller.room_id}, Task Option ID: {self.exam_controller.task_option_id}")
 
-        # Создаём временные файлы из Base64
         self.save_base64_images()
 
         self.blue_widget = QWidget(self)
@@ -238,7 +244,7 @@ class ExamWindow(QMainWindow):
 
         self.sidebar_exit_button = QPushButton()
         self.sidebar_exit_button.resize(100, 10)
-        self.sidebar_exit_button.setIcon(QIcon('exam_window/icons/x.svg'))
+        self.sidebar_exit_button.setIcon(QIcon(resource_path('views/exam_window/icons/x.svg')))
         self.sidebar_exit_button.setStyleSheet("""
             QPushButton { background-color: #343c42; color: white; border-radius: 15px; padding: 12px; font-size: 16px; border: none; }
             QPushButton:hover { background-color: #4f565c; }
@@ -274,7 +280,7 @@ class ExamWindow(QMainWindow):
         timer_tasks_layout.addWidget(self.timer_label)
 
         self.sidebar_button = QPushButton(" Тапсырмалар")
-        self.sidebar_button.setIcon(QIcon('exam_window/icons/show-sidebar-horiz.svg'))
+        self.sidebar_button.setIcon(QIcon(resource_path('views/exam_window/icons/show-sidebar-horiz.svg')))
         self.sidebar_button.setStyleSheet("""
             QPushButton { background-color: #343c42; color: white; border-radius: 15px; padding: 12px; font-size: 16px; border: none; }
             QPushButton:hover { background-color: #4f565c; }
@@ -308,7 +314,7 @@ class ExamWindow(QMainWindow):
         exit_layout.addStretch()
 
         self.exit_button = QPushButton("Аяқтау")
-        self.exit_button.setIcon(QIcon("exam_window/icons/free-exit-icon-2860-thumb.png"))
+        self.exit_button.setIcon(QIcon(resource_path("views/exam_window/icons/free-exit-icon-2860-thumb.png")))
         self.exit_button.setStyleSheet("""
             QPushButton { background-color: #c42329; color: white; border-radius: 15px; padding: 12px; font-size: 16px; border: none; }
             QPushButton:hover { background-color: #c93a40; }
@@ -323,7 +329,6 @@ class ExamWindow(QMainWindow):
         main_layout.addLayout(image_text_layout, stretch=1)
 
     def save_base64_images(self):
-        """Сохраняем изображения из file_base64 во временные файлы"""
         if not self.task_files:
             return
         for i, task in enumerate(self.task_files):
@@ -333,18 +338,15 @@ class ExamWindow(QMainWindow):
                 self.temp_image_paths.append(None)
                 continue
             try:
-                # Предполагаем, что file_base64 — список, берём первый элемент
                 if isinstance(base64_data, list) and len(base64_data) > 0:
-                    base64_string = base64_data[0]  # Берём первую строку из списка
+                    base64_string = base64_data[0]  
                 else:
-                    base64_string = base64_data  # Если не список, используем как есть
+                    base64_string = base64_data  
 
-                # Если строка с префиксом "data:image/...", убираем его
                 if isinstance(base64_string, str):
                     if base64_string.startswith("data:image"):
                         base64_string = base64_string.split(",")[1]
                     image_data = base64.b64decode(base64_string)
-                    # Определяем расширение из file_path
                     extension = ".jpeg" if "jpeg" in task["file_path"].lower() else ".png"
                     temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=extension)
                     temp_file.write(image_data)
@@ -435,7 +437,7 @@ class ExamWindow(QMainWindow):
             print("Результаты отправлены успешно")
         else:
             print("Ошибка при отправке результатов")
-        self.cleanup_temp_files()  # Удаляем файлы перед закрытием
+        self.cleanup_temp_files()  
         self.close()
 
     def show_fullscreen_image(self, event):
@@ -446,5 +448,5 @@ class ExamWindow(QMainWindow):
 
     def closeEvent(self, event):
         self.exam_controller.stop_monitoring()
-        self.cleanup_temp_files()  # Удаляем файлы при любом закрытии окна
+        self.cleanup_temp_files()  
         super().closeEvent(event)

@@ -15,11 +15,8 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.app_manager = app_manager
 
-        # self.logs = Logs()
         self.tray_manager = TrayManager(self)
-        # self.logs.start()
 
-        print(self.tray_manager)
         self.setWindowTitle("kӨz")
         self.setGeometry(700, 250, 500, 100)
         self.setWindowFlags(self.windowFlags() | Qt.CustomizeWindowHint)

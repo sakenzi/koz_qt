@@ -2,6 +2,16 @@ from PyQt5.QtWidgets import (QMainWindow, QWidget, QLabel, QVBoxLayout, QHBoxLay
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5 import QtGui
 from PyQt5 import QtCore
+from pathlib import Path
+import sys
+import os
+
+
+def resource_path(relative_path):
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
+
 
 class WaitingForWindow(QMainWindow):
     def __init__(self, app_manager):
@@ -35,7 +45,7 @@ class WaitingForWindow(QMainWindow):
         quote.setContentsMargins(100, 250, 100, 100)
 
         self.loading_label = QLabel(self.central_widget)
-        self.loading_gif_path = "waiting_for_window/images/ZZ5H.gif"
+        self.loading_gif_path = resource_path("views/waiting_for_window/images/ZZ5H.gif")
         self.loading_gif = QtGui.QMovie(self.loading_gif_path)
         if not self.loading_gif.isValid():
             self.loading_label.setText("Ошибка: GIF не найден или поврежден")
