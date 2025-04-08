@@ -19,5 +19,5 @@ class AuthData:
     
 
 class TaskData:
-    def __init__(self, ):
+    def __init__(self, task_option_id, room_id, ):
         pass

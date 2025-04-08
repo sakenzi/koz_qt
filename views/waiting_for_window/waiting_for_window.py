@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QLabel, QVBoxLayout,
                              QHBoxLayout,)
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 from controllers.main_window_controller import MainWindowController
@@ -11,7 +11,9 @@ class WaitingForWindow(QMainWindow):
         super().__init__()
         self.app_manager = app_manager
 
-        self.controller = MainWindowController(self)
+        self.controller = self.app_manager.get_controller()
+        if self.controller is None:
+            print("Ошибка: контроллер не передан в WaitingForWindow")
 
         self.setWindowTitle("Күту зонасы")
         self.setWindowFlags(self.windowFlags() | Qt.CustomizeWindowHint)
@@ -66,10 +68,17 @@ class WaitingForWindow(QMainWindow):
         loading_layout.addLayout(loading)
         loading_layout.addLayout(quote)
 
+        self.check_timer = QTimer(self)
+        self.check_timer.timeout.connect(self.check_for_message)
+        self.check_timer.start(1000)
+
     def check_for_message(self):
-        if self.controller.has_message():
+        if self.controller and self.controller.has_message():
+            self.check_timer.stop()
+            print("Сообщение получено, переключаемся на ExamWindow")
             self.switch_to_exam()
 
-    def switch_to_exam(self):        
+    def switch_to_exam(self):  
+        print('ssssssss')      
         self.app_manager.show_exam_window()
         self.hide()

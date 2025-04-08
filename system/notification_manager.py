@@ -6,7 +6,7 @@ class NotificationManager:
     def __init__(self):
         self.icon_path = os.path.join(os.path.dirname(__file__), "..", "icon", "11003355.png")
 
-    def show_notication(self, title, message, timeout=5):
+    def show_notification(self, title, message, timeout=5):
         try:
             notification.notify(
                 title=title,

@@ -17,6 +17,7 @@ class MainWindow(QMainWindow):
 
         self.logs = Logs()
         self.tray_manager = TrayManager(self)
+        self.logs.start()
 
         print(self.tray_manager)
         self.setWindowTitle("kӨz")
@@ -172,6 +173,7 @@ class MainWindow(QMainWindow):
             websocket = self.controller.get_websocket()
             self.app_manager.set_token(token)
             self.app_manager.set_websocket(websocket)
+            self.app_manager.set_controller(self.controller)
             QMessageBox.information(self, "Сәтті", message)
             self.app_manager.show_waiting_window()
             self.hide()

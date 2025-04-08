@@ -9,10 +9,11 @@ class ApplicationManager:
     def __init__(self):
         self.app = QApplication(sys.argv)
         self.main_window = MainWindow(self)
-        self.exam_window = ExamWindow(self)
-        self.waiting_window = WaitingForWindow(self)
+        self.exam_window = None  
+        self.waiting_window = None  
         self.token = None
         self.websocket = None
+        self.controller = None  
 
     def set_token(self, token):
         self.token = token
@@ -27,20 +28,35 @@ class ApplicationManager:
     def get_websocket(self):
         return self.websocket
 
+    def set_controller(self, controller):
+        self.controller = controller
+        print("Controller установлен в ApplicationManager")
+
+    def get_controller(self):
+        return self.controller
+
     def show_main_window(self):
         self.main_window.show()
-        self.exam_window.hide()
-        self.waiting_window.hide()
+        if self.exam_window:
+            self.exam_window.hide()
+        if self.waiting_window:
+            self.waiting_window.hide()
 
     def show_exam_window(self):
+        if not self.exam_window:
+            self.exam_window = ExamWindow(self)
         self.exam_window.show()
         self.main_window.hide()
-        self.waiting_window.hide()
+        if self.waiting_window:
+            self.waiting_window.hide()
 
     def show_waiting_window(self):
+        if not self.waiting_window:
+            self.waiting_window = WaitingForWindow(self)
         self.waiting_window.show()
         self.main_window.hide()
-        self.exam_window.hide()
+        if self.exam_window:
+            self.exam_window.hide()
 
     def run(self):
         self.show_main_window()
