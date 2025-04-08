@@ -5,8 +5,10 @@ import os
 
 load_dotenv()
 
+api = os.getenv("API_BASE_URL")
+
 def login(data):
-    url = os.getenv("API_AUTH_URL")
+    url = f"{api}/auth/client/login"
     print(data)
     try: 
         response = requests.post(url, json=data)
