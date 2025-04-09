@@ -372,7 +372,6 @@ class ExamWindow(QMainWindow):
                 self.temp_image_paths.append(None)
 
     def cleanup_temp_files(self):
-        """Удаляем временные файлы"""
         for path in self.temp_image_paths:
             if path and os.path.exists(path):
                 try:

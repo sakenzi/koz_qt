@@ -19,21 +19,22 @@ class Logs:
                 if active_window:
                     window_title = active_window.title.strip()  
                     
-                    for proc in psutil.process_iter(['name']):
-                        proc_name = proc.info['name'].lower()
-                        if "chrome" in proc_name:
-                            browser = "Google Chrome"
-                        elif "msedge" in proc_name:
-                            browser = "Microsoft Edge"
-                        elif "firefox" in proc_name:
-                            browser = "Firefox"
-                        else:
-                            continue
+                    # for proc in psutil.process_iter(['name']):
+                    #     proc_name = proc.info['name'].lower()
+                    #     if "chrome" in proc_name:
+                    #         browser = "Google Chrome"
+                    #     elif "msedge" in proc_name:
+                    #         browser = "Microsoft Edge"
+                    #     elif "firefox" in proc_name:
+                    #         browser = "Firefox"
+                    #     else:
+                    #         continue
 
-                        if window_title and window_title != self.last_site and window_title != "":
-                            self.log_action(f"Зашёл: {window_title}")
-                            self.last_site = window_title
-                        break
+                    #     if window_title and window_title != self.last_site and window_title != "":
+                    #         self.log_action(f"Зашёл: {window_title}")
+                    #         self.last_site = window_title
+                    #     break
+                    self.log_action(f"Зашёл: {window_title}")
                 else:
                     self.last_site = None  
             except Exception as e:

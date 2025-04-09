@@ -6,6 +6,49 @@ from models.models import ExamResult, Answer
 from api_handlers.exam_tasks import submit_exam_result
 import jwt
 
+# class Logs:
+#     def __init__(self):
+#         self.running = False
+#         self.processes = set()
+#         self.last_site = None
+#         self.log_entries = []
+
+#     def log_action(self, message):
+#         timestamp = time.ctime()
+#         log_entry = f"{timestamp}: {message}"
+#         self.log_entries.append(log_entry)
+#         print(log_entry)
+
+#     def monitor_browser_activity(self):
+#         while self.running:
+#             try:
+#                 active_window = gw.getActiveWindow()
+#                 if active_window:
+#                     window_title = active_window.title.strip()
+#                 else:
+#                     self.last_site = None
+#             except Exception as e:
+#                 self.log_action(f"Ошибка при мониторинге: {e}")
+#             time.sleep(1)
+
+#     def start(self):
+#         if not self.running:
+#             self.running = True
+#             self.processes = {p.info["name"] for p in psutil.process_iter(['name'])}
+#             self.log_action("Тестовый вывод: мониторинг начат")
+#             browser_thread = Thread(target=self.monitor_browser_activity)
+#             browser_thread.daemon = True
+#             browser_thread.start()
+#             self.log_action("Мониторинг активности начат")
+
+#     def stop(self):
+#         if self.running:
+#             self.running = False
+#             self.log_action("Мониторинг остановлен")
+
+#     def get_logs(self):
+#         return "\n".join(self.log_entries)
+
 class Logs:
     def __init__(self):
         self.running = False
@@ -25,22 +68,13 @@ class Logs:
                 active_window = gw.getActiveWindow()
                 if active_window:
                     window_title = active_window.title.strip()
-                    for proc in psutil.process_iter(['name']):
-                        proc_name = proc.info['name'].lower()
-                        if "chrome" in proc_name:
-                            browser = "Google Chrome"
-                        elif "msedge" in proc_name:
-                            browser = "Microsoft Edge"
-                        elif "firefox" in proc_name:
-                            browser = "Firefox"
-                        else:
-                            continue
-                        if window_title and window_title != self.last_site and window_title != "":
-                            self.log_action(f"Зашёл в {browser}: {window_title}")
-                            self.last_site = window_title
-                        break
+                    # Логируем только если заголовок не пустой, отличается от предыдущего и не является общим названием браузера
+                    if (window_title and window_title != self.last_site and
+                            window_title not in ["Google Chrome", "Microsoft Edge", "Firefox", ""]):
+                        self.log_action(f"Зашёл: {window_title}")
+                        self.last_site = window_title
                 else:
-                    self.last_site = None
+                    self.last_site = None  # Сбрасываем, если нет активного окна
             except Exception as e:
                 self.log_action(f"Ошибка при мониторинге: {e}")
             time.sleep(1)
