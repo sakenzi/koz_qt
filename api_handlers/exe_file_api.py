@@ -5,7 +5,7 @@ import logging
 
 load_dotenv()
 
-API_URL = os.getenv("API_URL")  # Add your API URL to .env, e.g., "https://api.example.com/files"
+API_URL = os.getenv("API_URL")  
 
 async def fetch_exe_files():
     try:
