@@ -116,7 +116,6 @@ class MainWindowController:
 
     def has_message(self):
         is_set = self.message_received.is_set()
-        print(f"Проверка сообщения: {is_set}, Количество сообщений: {self.message_count}")
         return is_set
 
     def clear_message(self):
