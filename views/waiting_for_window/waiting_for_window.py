@@ -1,10 +1,11 @@
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QLabel, QVBoxLayout, QHBoxLayout)
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation, QEasingCurve
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 from pathlib import Path
 import sys
 import os
+import random
 
 
 def resource_path(relative_path):
@@ -20,6 +21,9 @@ class WaitingForWindow(QMainWindow):
         self.controller = self.app_manager.get_controller()
         if self.controller is None:
             print("Ошибка: контроллер не передан в WaitingForWindow")
+
+        self.list_quotes = ["Сабыр түбі сары алтын", "Терпение и время дают больше, чем сила или страсть.", "На дне терпения оседает золото."]
+        self.current_quote_index = 0
 
         self.setWindowTitle("Күту зонасы")
         self.setWindowFlags(self.windowFlags() | Qt.CustomizeWindowHint)
@@ -56,7 +60,7 @@ class WaitingForWindow(QMainWindow):
 
         self.loading_label.setAlignment(Qt.AlignCenter)
 
-        self.quote_label = QLabel("Сабыр түбі сары - алтын!")
+        self.quote_label = QLabel(self.list_quotes[self.current_quote_index])
         self.quote_label.setStyleSheet("""
             QLabel { color: #868b8f; font-size: 30px; font-weight: bold; }
         """)
@@ -71,10 +75,36 @@ class WaitingForWindow(QMainWindow):
         self.check_timer.timeout.connect(self.check_for_message)
         self.check_timer.start(1000)
 
+        self.quote_timer = QTimer(self)
+        self.quote_timer.timeout.connect(self.start_quote_fade)
+        self.quote_timer.start(5000)
+
+    def start_quote_fade(self):
+        self.fade_out_animation = QPropertyAnimation(self.quote_label, b"windowOpacity")
+        self.fade_out_animation.setDuration(1000)
+        self.fade_out_animation.setStartValue(1.0)
+        self.fade_out_animation.setEndValue(0.0)
+        self.fade_out_animation.setEasingCurve(QEasingCurve.InOutQuad)
+        self.fade_out_animation.finished.connect(self.change_quote)
+        self.fade_out_animation.start()
+
+    def change_quote(self):
+        available_quotes = [q for q in self.list_quotes if q != self.quote_label.text()]
+        new_quote = random.choice(available_quotes)
+        self.quote_label.setText(new_quote)
+
+        self.fade_out_animation = QPropertyAnimation(self.quote_label, b"windowOpacity")
+        self.fade_out_animation.setDuration(1000)
+        self.fade_out_animation.setStartValue(1.0)
+        self.fade_out_animation.setEndValue(0.0)
+        self.fade_out_animation.setEasingCurve(QEasingCurve.InOutQuad)
+        self.fade_out_animation.start()
+
     def check_for_message(self):
         if self.controller and self.controller.has_message():
             print("Сообщение с заданиями получено, переключаемся на ExamWindow")
             self.check_timer.stop()  
+            self.quote_timer.stop()
             self.switch_to_exam()
             self.controller.clear_message()  
 

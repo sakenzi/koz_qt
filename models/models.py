@@ -45,6 +45,7 @@ class TaskData:
             "room_id": self.room_id
         }
     
+
 class Answer:
     def __init__(self, order, text):
         self.order = order
@@ -55,6 +56,7 @@ class Answer:
             "order": self.order,
             "text": self.text
         }
+    
     
 class ExamResult:
     def __init__(self, room_id, task_option_id, answers, logs):
@@ -69,4 +71,14 @@ class ExamResult:
             "task_option_id": self.task_option_id,
             "answers": [answer.to_dict() for answer in self.answers],
             "logs": self.logs
+        }
+    
+    
+class Quote:
+    def __init__(self, description):
+        self.description = description
+
+    def to_dict(self):
+        return {
+            "description": self.description
         }
