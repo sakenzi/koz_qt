@@ -346,7 +346,6 @@ class ExamWindow(QMainWindow):
         for i, task in enumerate(self.task_files):
             base64_data = task.get("file_base64")
             if not base64_data:
-                print(f"Base64 данные отсутствуют для задачи {i + 1}")
                 self.temp_image_paths.append(None)
                 continue
             try:
@@ -364,7 +363,6 @@ class ExamWindow(QMainWindow):
                     temp_file.write(image_data)
                     temp_file.close()
                     self.temp_image_paths.append(temp_file.name)
-                    print(f"Сохранено изображение: {temp_file.name}")
                 else:
                     raise ValueError("Base64 данные не являются строкой")
             except Exception as e:
@@ -373,12 +371,8 @@ class ExamWindow(QMainWindow):
 
     def cleanup_temp_files(self):
         for path in self.temp_image_paths:
-            if path and os.path.exists(path):
-                try:
-                    os.unlink(path)
-                    print(f"Удалён файл: {path}")
-                except Exception as e:
-                    print(f"Ошибка удаления файла {path}: {e}")
+            if path and os.path.exists(path):    
+                os.unlink(path)
 
     def change_task(self, index):
         if 0 <= index < len(self.temp_image_paths):
@@ -435,19 +429,13 @@ class ExamWindow(QMainWindow):
         self.exam_controller.stop_monitoring()
         token = self.controller.get_token()
         if not token:
-            print("Ошибка: Токен не найден")
             self.cleanup_temp_files()
             self.close()
             return
 
         exam_result = self.exam_controller.get_exam_result()
         data_to_send = exam_result.to_dict()
-        print("Фактически отправляемые данные:", data_to_send)
-
-        if self.exam_controller.submit_result(token):
-            print("Результаты отправлены успешно")
-        else:
-            print("Ошибка при отправке результатов")
+        
         self.cleanup_temp_files()
         self.close()
 
