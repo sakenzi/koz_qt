@@ -2,8 +2,8 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from PyQt5.QtWidgets import (QWidget, QMainWindow, QPushButton, QLabel, 
-                             QLineEdit, QVBoxLayout, QMessageBox, QFormLayout)
-from PyQt5.QtCore import Qt
+                             QLineEdit, QVBoxLayout, QMessageBox, QFormLayout, QComboBox, QApplication)
+from PyQt5.QtCore import Qt, QTranslator, QEvent
 from system.system_info import SystemInfo
 from controllers.main_window_controller import MainWindowController
 from system.tray_manager import TrayManager
@@ -14,6 +14,7 @@ class MainWindow(QMainWindow):
     def __init__(self, app_manager):
         super().__init__()
         self.app_manager = app_manager
+        self.translator = QTranslator()
 
         self.tray_manager = TrayManager(self)
 
@@ -36,6 +37,21 @@ class MainWindow(QMainWindow):
         self.layout = QVBoxLayout(self.central_widget)
 
         self.controller = MainWindowController(self)
+
+        self.language_combo = QComboBox()
+        self.language_combo.addItem("Қазақша", "kz")
+        self.language_combo.addItem("Русский", "ru")
+        self.language_combo.addItem("English", "en")
+        self.setStyleSheet("""
+            QComboBox {
+                font-size: 16px;
+                font-weight: bold;
+                color: #333333;
+                padding: 10px;
+            }
+        """)
+        self.language_combo.currentIndexChanged.connect(self.change_language)
+        self.layout.addWidget(self.language_combo)
 
         self.title_label = QLabel("Сынақ алаңына өту")
         self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -157,6 +173,32 @@ class MainWindow(QMainWindow):
         auth_layout.addWidget(self.start_button)
 
         self.layout.addLayout(auth_layout)
+
+    def change_language(self):
+        language = self.language_combo.currentData()
+        QApplication.instance().removeTranslator(self.translator)
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        translation_path = os.path.join(base_path, "translations", f"{language}.qm")
+        success = self.translator.load(translation_path)
+
+        if not success:
+            QMessageBox.critical(self, "Ошибка", f"Не удалось загрузить перевод для языка {language}")
+            return
+
+        QApplication.instance().installTranslator(self.translator)
+        self.update_ui_texts()
+        self.event(QEvent(QEvent.LanguageChange))
+
+    def update_ui_texts(self):
+        self.title_label.setText(self.tr("Сынақ алаңына өту"))
+        self.username_label.setText(self.tr("Қолданушы аты-жөні:"))
+        self.username_input.setPlaceholderText(self.tr("Аты-жөніңізді жазыңыз"))
+        self.code_label.setText(self.tr("Код:"))
+        self.code_input.setPlaceholderText(self.tr("Кодты енгізіңіз"))
+        self.option_label.setText(self.tr("Нұсқа:"))
+        self.option_input.setPlaceholderText(self.tr("Нұсқаны енгізіңіз"))
+        self.start_button.setText(self.tr("Бастау"))
+        self.setWindowTitle(self.tr("kӨz"))
 
     def on_start_button_clicked(self):
         success, message = self.controller.authenticate(
