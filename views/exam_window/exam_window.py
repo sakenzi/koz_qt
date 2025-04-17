@@ -1,7 +1,8 @@
 from PyQt5.QtCore import QPropertyAnimation, QPoint, QSequentialAnimationGroup, QTimer, Qt
-from PyQt5.QtWidgets import (QWidget, QPushButton, QMainWindow, QLabel, QListWidget, QVBoxLayout, QHBoxLayout, QDialog, QPlainTextEdit, QTextEdit)
-from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor, QPainter, QTextFormat, QImage
-from PyQt5.QtCore import (QEvent, QSize, QRect)
+from PyQt5.QtWidgets import (QWidget, QPushButton, QMainWindow, QLabel, QListWidget, QVBoxLayout, 
+                             QHBoxLayout, QDialog, QPlainTextEdit, QTextEdit, QLineEdit)
+from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor, QPainter, QTextFormat
+from PyQt5.QtCore import (QEvent, QSize, QRect, QProcess, QTextStream)
 import time
 import base64
 import os
@@ -306,6 +307,20 @@ class ExamWindow(QMainWindow):
         image_text_layout = QHBoxLayout()
         image_text_layout.setSpacing(20)
 
+        notepad_layout = QVBoxLayout()
+        notepad_layout.setSpacing(10)
+
+        notepads_layout = QVBoxLayout()
+        
+        terminal_layout = QVBoxLayout()
+
+        terminal_input_and_button_layout = QHBoxLayout()
+        terminal_input_layout = QHBoxLayout()
+        terminal_button_layout = QHBoxLayout()
+
+        image_layout = QHBoxLayout()
+        image_layout.setSpacing(10)
+
         if self.temp_image_paths:
             pixmap = QPixmap(self.temp_image_paths[0])
             if pixmap and not pixmap.isNull():
@@ -315,12 +330,48 @@ class ExamWindow(QMainWindow):
         else:
             self.image_label.setText("Сурет табылмады")
         self.image_label.mousePressEvent = self.show_fullscreen_image
-        image_text_layout.addWidget(self.image_label)
+        image_layout.addWidget(self.image_label)
 
         self.notepad = CodeEditor()
         self.notepad.setPlaceholderText("Тапсырманы жазыңыз")
         self.notepad.textChanged.connect(self.save_notepad_text)
-        image_text_layout.addWidget(self.notepad, stretch=1)
+        notepads_layout.addWidget(self.notepad, stretch=1)
+
+        self.process = QProcess()
+        self.output = QTextEdit()
+        self.output.setStyleSheet("""
+            QTextEdit { background-color: #343c42; color: white; border-radius: 15px; padding: 12px; font-size: 16px; border: none; }
+            QTextEdit:hover { background-color: #4f565c; }
+            QTextEdit:pressed { background-color: #808a91; }
+        """
+        )
+        self.input = QLineEdit()
+        self.input.setStyleSheet("""
+            QLineEdit { background-color: #343c42; color: white; border-radius: 15px; padding: 12px; font-size: 16px; border: none; }
+            QLineEdit:hover { background-color: #4f565c; }
+            QLineEdit:pressed { background-color: #808a91; }
+        """)
+        self.run_command_button = QPushButton("run", self)
+        self.run_command_button.setStyleSheet("""
+            QPushButton { background-color: #7ccf80; color: white; border-radius: 15px; padding: 12px; font-size: 16px; border: none; }
+            QPushButton:hover { background-color: #195c1c; }
+            QPushButton:pressed { background-color: #166e1a; }
+        """)
+        self.process.readyReadStandardOutput.connect(self.read_output)
+        self.run_command_button.clicked.connect(self.run_command)
+        self.process.start("cmd.exe")
+
+        terminal_input_layout.addWidget(self.input)
+        terminal_button_layout.addWidget(self.run_command_button)
+        terminal_input_and_button_layout.addLayout(terminal_input_layout)
+        terminal_input_and_button_layout.addLayout(terminal_button_layout)
+        terminal_layout.addLayout(terminal_input_and_button_layout)  
+        terminal_layout.addWidget(self.output)
+
+        image_text_layout.addLayout(image_layout)
+        image_text_layout.addLayout(notepad_layout)
+        notepad_layout.addLayout(notepads_layout)
+        notepads_layout.addLayout(terminal_layout)
 
         exit_layout = QHBoxLayout()
         exit_layout.addStretch()
@@ -352,6 +403,14 @@ class ExamWindow(QMainWindow):
         self.sidebar_button.setText(self.tr(" Тапсырмалар"))
         self.notepad.setPlaceholderText(self.tr("Тапсырманы жазыңыз"))
         self.exit_button.setText(self.tr("Аяқтау"))
+        
+    def read_output(self):
+        stream = QTextStream(self.process)
+        self.output.append(stream.readAll())
+
+    def run_command(self):
+        command = self.input.text() + "\n"
+        self.process.write(command.encode())
         
     def save_base64_images(self):
         if not self.task_files:
