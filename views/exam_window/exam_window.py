@@ -51,10 +51,10 @@ class ExitWindow(QDialog):
         layout.setSpacing(10)
         layout.setContentsMargins(20, 20, 20, 20)
 
-        question_label = QLabel("Сіз шынымен шыққыңыз келеді ме?\n Мүмкін тапсырма жауаптарын бір тексеріп шығарсыз!")
-        question_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        question_label.setStyleSheet("QLabel { font-size: 16px; color: #333333; }")
-        layout.addWidget(question_label)
+        self.question_label = QLabel("Сіз шынымен шыққыңыз келеді ме?\n Мүмкін тапсырма жауаптарын бір тексеріп шығарсыз!")
+        self.question_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.question_label.setStyleSheet("QLabel { font-size: 16px; color: #333333; }")
+        layout.addWidget(self.question_label)
 
         button_layout = QHBoxLayout(self)
         button_layout.setSpacing(10)
@@ -68,13 +68,13 @@ class ExitWindow(QDialog):
         self.yes_button.clicked.connect(self.accept)
         button_layout.addWidget(self.yes_button)
 
-        no_button = QPushButton("Өзіме сенімді емеспін,\n Тағы бір тексеріп алайын")
-        no_button.setStyleSheet("""
+        self.no_button = QPushButton("Өзіме сенімді емеспін,\n Тағы бір тексеріп алайын")
+        self.no_button.setStyleSheet("""
             QPushButton { background-color: #1E90FF; color: white; border-radius: 10px; padding: 8px 20px; font-size: 14px; border: 1px solid #1E90FF; }
             QPushButton:hover { background-color: #104E8B; }
         """)
-        no_button.clicked.connect(self.reject)
-        button_layout.addWidget(no_button)
+        self.no_button.clicked.connect(self.reject)
+        button_layout.addWidget(self.no_button)
 
         layout.addLayout(button_layout)
 
@@ -82,6 +82,11 @@ class ExitWindow(QDialog):
         result = super().exec()
         return result == QDialog.DialogCode.Accepted
 
+    def update_ui_texts(self):
+        self.setWindowTitle(self.tr("Растау"))
+        self.question_label.setText(self.tr("Сіз шынымен шыққыңыз келеді ме?\n Мүмкін тапсырма жауаптарын бір тексеріп шығарсыз!"))
+        self.yes_button.setText(self.tr("Иә, аяқтағым келеді\n Мен өзіме сенімдімін!"))
+        self.no_button.setText(self.tr("Өзіме сенімді емеспін,\n Тағы бір тексеріп алайын"))
 
 class FullaImageWindow(QMainWindow):
     def __init__(self, image_path, parent=None):
@@ -112,7 +117,6 @@ class FullaImageWindow(QMainWindow):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Escape:
             self.close()
-
 
 class LineNumberArea(QWidget):
     def __init__(self, editor):
@@ -240,16 +244,16 @@ class ExamWindow(QMainWindow):
         self.blue_widget.setStyleSheet("background-color: #252c30;")
         self.blue_widget.move(-700, -700)
 
-        sidebar_layout = QVBoxLayout(self.blue_widget)
-        sidebar_layout.setContentsMargins(10, 10, 10, 10)
-        sidebar_layout.setSpacing(10)
+        self.sidebar_layout = QVBoxLayout(self.blue_widget)
+        self.sidebar_layout.setContentsMargins(10, 10, 10, 10)
+        self.sidebar_layout.setSpacing(10)
 
-        sidebar_tasks_layout = QHBoxLayout()
-        sidebar_tasks_layout.setSpacing(20)
+        self.sidebar_tasks_layout = QHBoxLayout()
+        self.sidebar_tasks_layout.setSpacing(20)
 
-        sidebar_title = QLabel("Тапсырмалар тізімі")
-        sidebar_title.setStyleSheet("QLabel { color: white; font-size: 18px; font-weight: bold; }")
-        sidebar_tasks_layout.addWidget(sidebar_title, stretch=2)
+        self.sidebar_title = QLabel("Тапсырмалар тізімі")
+        self.sidebar_title.setStyleSheet("QLabel { color: white; font-size: 18px; font-weight: bold; }")
+        self.sidebar_tasks_layout.addWidget(self.sidebar_title, stretch=2)
 
         self.sidebar_exit_button = QPushButton()
         self.sidebar_exit_button.resize(100, 10)
@@ -260,7 +264,7 @@ class ExamWindow(QMainWindow):
             QPushButton:pressed { background-color: #808a91; }
         """)
         self.sidebar_exit_button.clicked.connect(self.sidebar_blue_widget)
-        sidebar_tasks_layout.addWidget(self.sidebar_exit_button)
+        self.sidebar_tasks_layout.addWidget(self.sidebar_exit_button)
 
         self.task_list_font = QFont("", 20)
         self.task_list = QListWidget()
@@ -271,11 +275,11 @@ class ExamWindow(QMainWindow):
             QListWidget::item:selected { background-color: #808a91; }
         """)
         for i, task in enumerate(self.task_files, 1):
-            self.task_list.addItem(f"Тапсырма {i}")
+            self.task_list.addItem(f"Тапсырма/Задание {i}")
         self.task_list.currentRowChanged.connect(self.change_task)
 
-        sidebar_layout.addLayout(sidebar_tasks_layout)
-        sidebar_layout.addWidget(self.task_list)
+        self.sidebar_layout.addLayout(self.sidebar_tasks_layout)
+        self.sidebar_layout.addWidget(self.task_list)
 
         tasks_exit_timer_layout = QHBoxLayout()
         timer_tasks_layout = QHBoxLayout()
@@ -340,6 +344,15 @@ class ExamWindow(QMainWindow):
             self.task_list.setCurrentRow(0)
             self.change_task(0)
 
+        self.update_ui_texts()
+
+    def update_ui_texts(self):
+        self.setWindowTitle(self.tr("Экзамен алаңы"))
+        self.sidebar_title.setText(self.tr("Тапсырмалар тізімі"))
+        self.sidebar_button.setText(self.tr(" Тапсырмалар"))
+        self.notepad.setPlaceholderText(self.tr("Тапсырманы жазыңыз"))
+        self.exit_button.setText(self.tr("Аяқтау"))
+        
     def save_base64_images(self):
         if not self.task_files:
             return
@@ -422,6 +435,7 @@ class ExamWindow(QMainWindow):
 
     def on_exit_clicked(self):
         exit_window = ExitWindow(self)
+        exit_window.update_ui_texts()
         if exit_window.exec():
             self.submit_and_close()
 

@@ -6,6 +6,7 @@ from views.waiting_for_window.waiting_for_window import WaitingForWindow
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+
 class ApplicationManager:
     def __init__(self):
         self.app = QApplication(sys.argv)
@@ -14,7 +15,16 @@ class ApplicationManager:
         self.waiting_window = None  
         self.token = None
         self.websocket = None
+        self.language = "kz"
         self.controller = None  
+        self.translator = None
+
+    def set_language(self, language):
+        self.language = language
+
+    def set_translator(self, translator):
+        self.translator = translator
+        QApplication.instance().installTranslator(self.translator)
 
     def set_token(self, token):
         self.token = token
@@ -58,6 +68,14 @@ class ApplicationManager:
         self.main_window.hide()
         if self.exam_window:
             self.exam_window.hide()
+
+    def update_all_windows(self):
+        if self.main_window and self.main_window.isVisible():
+            self.main_window.update_ui_texts()
+        if self.waiting_window and self.waiting_window.isVisible():
+            self.waiting_window.update_ui_texts()
+        if self.exam_window and self.exam_window.isVisible():
+            self.exam_window.update_ui_texts()
 
     def run(self):
         self.show_main_window()

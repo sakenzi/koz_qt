@@ -79,6 +79,11 @@ class WaitingForWindow(QMainWindow):
         self.quote_timer.timeout.connect(self.start_quote_fade)
         self.quote_timer.start(4000)
 
+        self.update_ui_texts()
+
+    def update_ui_texts(self):
+        self.setWindowTitle(self.tr("Күту зонасы"))
+
     def start_quote_fade(self):
         self.opacity_effect = QGraphicsOpacityEffect()
         self.quote_label.setGraphicsEffect(self.opacity_effect)

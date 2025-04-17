@@ -15,6 +15,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.app_manager = app_manager
         self.translator = QTranslator()
+        self.app_manager.set_translator(self.translator)
 
         self.tray_manager = TrayManager(self)
 
@@ -176,7 +177,7 @@ class MainWindow(QMainWindow):
 
     def change_language(self):
         language = self.language_combo.currentData()
-        QApplication.instance().removeTranslator(self.translator)
+        self.app_manager.set_language(language)
         base_path = os.path.dirname(os.path.abspath(__file__))
         translation_path = os.path.join(base_path, "translations", f"{language}.qm")
         success = self.translator.load(translation_path)
@@ -187,6 +188,7 @@ class MainWindow(QMainWindow):
 
         QApplication.instance().installTranslator(self.translator)
         self.update_ui_texts()
+        self.app_manager.update_all_windows()
         self.event(QEvent(QEvent.LanguageChange))
 
     def update_ui_texts(self):
