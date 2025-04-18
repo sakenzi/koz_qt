@@ -61,15 +61,11 @@ class Answer:
 class ExamResult:
     def __init__(self, room_id, task_option_id, answers, logs):
         self.room_id = room_id
-        self.task_option_id = task_option_id
-        self.answers = answers
         self.logs = logs
 
     def to_dict(self):
         return {
             "room_id": int(self.room_id) if self.room_id is not None else None,
-            "task_option_id": self.task_option_id,
-            "answers": [answer.to_dict() for answer in self.answers],
             "logs": self.logs
         }
     

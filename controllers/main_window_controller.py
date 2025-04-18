@@ -6,6 +6,9 @@ import threading
 from threading import Event
 import json
 
+from pathlib import Path
+import os
+
 
 class MainWindowController:
     def __init__(self, view):
@@ -36,6 +39,22 @@ class MainWindowController:
                 message = ws.recv()
                 self.last_message = message
                 self.message_count += 1
+
+                home_dir = Path.home()
+                project_folder = home_dir / "koz_project"
+                
+                try:
+                    project_folder.mkdir(exist_ok=True)
+                    print(f"Папка жасалды немесе бұндай папка бар: {project_folder}")
+
+                    python_file = project_folder / "1.py"
+                    if not python_file.exists():
+                        python_file.touch()
+                        print(f"Файл жасалды: {python_file}")
+                    else:
+                        print(f"Файл уже бар: {python_file}")
+                except Exception as e:
+                    print(f"Ошибка: {e}")
 
                 if self.message_count == 1 and message == "You are connected as client.":
                     print("Первое сообщение — подключение, ждем следующее")
