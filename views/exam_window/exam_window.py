@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QPropertyAnimation, QPoint, QSequentialAnimationGroup, QTimer, Qt
 from PyQt5.QtWidgets import (QWidget, QPushButton, QMainWindow, QLabel, QListWidget, QVBoxLayout, 
-                             QHBoxLayout, QDialog, QPlainTextEdit, QTextEdit, QLineEdit)
-from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor, QPainter, QTextFormat
+                             QHBoxLayout, QDialog, QPlainTextEdit, QTextEdit, QLineEdit, QComboBox)
+from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor, QPainter, QTextFormat, QKeyEvent
 from PyQt5.QtCore import (QEvent, QSize, QRect, QProcess, QTextStream)
 import time
 import base64
@@ -9,6 +9,7 @@ import os
 import sys
 import tempfile
 from controllers.exam_tasks_controller import ExamTasksController
+from pathlib import Path
 
 
 def resource_path(relative_path):
@@ -311,9 +312,55 @@ class ExamWindow(QMainWindow):
         notepad_layout.setSpacing(10)
 
         notepads_layout = QVBoxLayout()
-        
-        terminal_layout = QVBoxLayout()
 
+        self.tab_bar = QWidget()
+        self.tab_bar.setFixedHeight(30)
+        self.tab_bar.setStyleSheet("""
+            QWidget { background-color: #252526; border-bottom: 1px solid #3c3c3c; }
+        """)
+        tab_layout = QHBoxLayout(self.tab_bar)
+        tab_layout.setContentsMargins(5, 0, 0, 0)
+        tab_layout.setSpacing(5)
+
+        self.tabs = []
+        self.current_file = None
+        self.add_tab("1.py")
+
+        self.new_file_button = QPushButton("+")
+        self.new_file_button.setFixedSize(30, 24)
+        self.new_file_button.setStyleSheet("""
+            QPushButton {
+                background-color: #252526; 
+                color: #d4d4d4; 
+                border: none; 
+                font-size: 14px; 
+            }
+            QPushButton:hover { background-color: #3c3c3c; }
+            QPushButton:pressed { background-color: #4f565c; }
+            }
+        """)
+        self.new_file_button.clicked.connect(self.toggle_new_file_combobox)
+        tab_layout.addWidget(self.new_file_button)
+
+        self.new_file_combobox = QComboBox()
+        self.new_file_combobox.addItems(["New .py file", "New .txt file"])
+        self.new_file_combobox.setFixedWidth(150)
+        self.new_file_combobox.setStyleSheet("""
+            QComboBox (
+                background-color: #252526; 
+                color: #d4d4d4; 
+                border: 1px solid #3c3c3c; 
+                padding: 5px; 
+            }
+            QComboBox::drop-down { border: none; }
+            QComboBox::down-arrow { image: none; }
+        """)
+        self.new_file_combobox.setVisible(False)
+        self.new_file_combobox.activated.connect(self.create_new_file)
+        tab_layout.addWidget(self.new_file_combobox)
+        tab_layout.addStretch()
+
+        terminal_layout = QVBoxLayout()
         terminal_input_and_button_layout = QHBoxLayout()
         terminal_input_layout = QHBoxLayout()
         terminal_button_layout = QHBoxLayout()
@@ -334,7 +381,9 @@ class ExamWindow(QMainWindow):
 
         self.notepad = CodeEditor()
         self.notepad.setPlaceholderText("Тапсырманы жазыңыз")
+        self.load_python_file("1.py")
         self.notepad.textChanged.connect(self.save_notepad_text)
+        notepad_layout.addWidget(self.tab_bar)
         notepads_layout.addWidget(self.notepad, stretch=1)
 
         self.process = QProcess()
@@ -397,6 +446,114 @@ class ExamWindow(QMainWindow):
 
         self.update_ui_texts()
 
+    def add_tab(self, file_name):
+        tab_label = QLabel(file_name)
+        tab_label.setStyleSheet("""
+            QLabel {
+                background-color: #252526; 
+                color: #d4d4d4; 
+                padding: 5px 15px; 
+                font-family: 'Consolas', 'Courier New', monospace; 
+                font-size: 12px; 
+                border-right: 1px solid #3c3c3c;
+                border-top: 2px solid #007acc;
+            }
+        """)
+        tab_label.mousePressEvent = lambda event: self.switch_tab(file_name)
+        self.tabs.append((file_name, tab_label))
+        tab_layout = self.tab_bar.layout()
+        tab_layout.insertWidget(len(self.tabs) - 1, tab_label)
+        self.current_file = file_name
+
+    def switch_tab(self, file_name):
+        self.current_file = file_name
+        self.load_python_file(file_name)
+        for fname, label in self.tabs:
+            if fname == file_name:
+                label.setStyleSheet("""
+                    QLabel { 
+                        background-color: #252526; 
+                        color: #d4d4d4; 
+                        padding: 5px 15px; 
+                        font-family: 'Consolas', 'Courier New', monospace; 
+                        font-size: 12px; 
+                        border-right: 1px solid #3c3c3c;
+                        border-top: 2px solid #007acc;
+                    }
+                """)
+            else:
+                label.setStyleSheet("""
+                    QLabel { 
+                        background-color: #252526; 
+                        color: #858585; 
+                        padding: 5px 15px; 
+                        font-family: 'Consolas', 'Courier New', monospace; 
+                        font-size: 12px; 
+                        border-right: 1px solid #3c3c3c;
+                        border-top: none;
+                    }
+                """)
+    
+    def toggle_new_file_combobox(self):
+        self.new_file_combobox.setVisible(not self.new_file_combobox.isVisible())
+        if self.new_file_combobox.isVisible():
+            self.new_file_combobox.showPopup()
+
+    def create_new_file(self, index):
+        file_type = ".py" if index == 0 else ".txt"
+        home_dir = Path.home()
+        project_folder = home_dir / "koz_project"
+        project_folder.mkdir(exist_ok=True)
+
+        i = 1
+        while (project_folder / f"file{i}{file_type}").exists():
+            i += 1
+        new_file = project_folder / f"file{i}{file_type}"
+
+        try: 
+            new_file.touch()
+            print(f"created file: {new_file}")  
+            self.add_tab(new_file.name)
+            self.load_python_file(new_file.name)
+        except Exception as e:
+            print(f"Error creating file {new_file}: {e}")
+        self.new_file_combobox.setVisible(False)
+    
+    def load_python_file(self, file_name):
+        home_dir = Path.home()
+        project_folder = home_dir / "koz_project"
+        file_path = project_folder / file_name
+        try:
+            if file_path.exists():
+                with open(file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                    self.notepad.setPlainText(content)
+                print(f"File 1.py: {file_path}")
+            else:
+                self.notepad.setPlainText("")
+                print(f"File 1.py not found: {file_path}")
+            self.current_file = file_name
+        except Exception as e:
+            print(f"Error loading file {file_path}: {e}")
+
+    def save_notepad_text(self):
+        if not self.current_file:
+            return
+        current_index = self.task_list.currentRow()
+        if current_index >= 0:
+            text = self.notepad.toPlainText()
+            self.notes[current_index] = text
+            self.exam_controller.add_answer(current_index + 1, text)
+            home_dir = Path.home()
+            project_folder  =home_dir / "koz_project"
+            file_path = project_folder / self.current_file
+            try:
+                with open(file_path, "w", encoding="utf-8") as f:
+                    f.write(text)
+                print(f"File saved: {file_path}")
+            except Exception as e:
+                print(f"Error saving file: {file_path}: {e}")
+
     def update_ui_texts(self):
         self.setWindowTitle(self.tr("Экзамен алаңы"))
         self.sidebar_title.setText(self.tr("Тапсырмалар тізімі"))
@@ -457,13 +614,6 @@ class ExamWindow(QMainWindow):
             self.notepad.setPlainText(self.notes.get(index, ""))
             self.notepad.blockSignals(False)
 
-    def save_notepad_text(self):
-        current_index = self.task_list.currentRow()
-        if current_index >= 0:
-            text = self.notepad.toPlainText()
-            self.notes[current_index] = text
-            self.exam_controller.add_answer(current_index + 1, text)
-
     def sidebar_blue_widget(self):
         anim_group = QSequentialAnimationGroup(self)
         if self.blue_widget.x() < 0:
@@ -508,7 +658,12 @@ class ExamWindow(QMainWindow):
 
         exam_result = self.exam_controller.get_exam_result()
         data_to_send = exam_result.to_dict()
+        print("Фактически отправляемые данные:", data_to_send)
         
+        if self.exam_controller.submit_result(token):
+            print("Результаты отправлены успешно")
+        else:
+            print("Ошибка при отправке результатов")
         self.cleanup_temp_files()
         self.close()
 
