@@ -513,32 +513,25 @@ class ExamWindow(QMainWindow):
         while (project_folder / f"file{i}{file_type}").exists():
             i += 1
         new_file = project_folder / f"file{i}{file_type}"
-
-        try: 
-            new_file.touch()
-            print(f"created file: {new_file}")  
-            self.add_tab(new_file.name)
-            self.load_python_file(new_file.name)
-        except Exception as e:
-            print(f"Error creating file {new_file}: {e}")
+        new_file.touch()
+        print(f"created file: {new_file}")  
+        self.add_tab(new_file.name)
+        self.load_python_file(new_file.name)
         self.new_file_combobox.setVisible(False)
     
     def load_python_file(self, file_name):
         home_dir = Path.home()
         project_folder = home_dir / "koz_project"
         file_path = project_folder / file_name
-        try:
-            if file_path.exists():
-                with open(file_path, "r", encoding="utf-8") as f:
-                    content = f.read()
-                    self.notepad.setPlainText(content)
-                print(f"File 1.py: {file_path}")
-            else:
-                self.notepad.setPlainText("")
-                print(f"File 1.py not found: {file_path}")
-            self.current_file = file_name
-        except Exception as e:
-            print(f"Error loading file {file_path}: {e}")
+        if file_path.exists():
+            with open(file_path, "r", encoding="utf-8") as f:
+                content = f.read()
+                self.notepad.setPlainText(content)
+            print(f"File 1.py: {file_path}")
+        else:
+            self.notepad.setPlainText("")
+            print(f"File 1.py not found: {file_path}")
+        self.current_file = file_name
 
     def save_notepad_text(self):
         if not self.current_file:
@@ -551,12 +544,9 @@ class ExamWindow(QMainWindow):
             home_dir = Path.home()
             project_folder  =home_dir / "koz_project"
             file_path = project_folder / self.current_file
-            try:
-                with open(file_path, "w", encoding="utf-8") as f:
-                    f.write(text)
-                print(f"File saved: {file_path}")
-            except Exception as e:
-                print(f"Error saving file: {file_path}: {e}")
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(text)
+            print(f"File saved: {file_path}")
 
     def update_ui_texts(self):
         self.setWindowTitle(self.tr("Экзамен алаңы"))
@@ -581,26 +571,23 @@ class ExamWindow(QMainWindow):
             if not base64_data:
                 self.temp_image_paths.append(None)
                 continue
-            try:
-                if isinstance(base64_data, list) and len(base64_data) > 0:
-                    base64_string = base64_data[0]
-                else:
-                    base64_string = base64_data
+            if isinstance(base64_data, list) and len(base64_data) > 0:
+                base64_string = base64_data[0]
+            else:
+                base64_string = base64_data
 
-                if isinstance(base64_string, str):
-                    if base64_string.startswith("data:image"):
-                        base64_string = base64_string.split(",")[1]
-                    image_data = base64.b64decode(base64_string)
-                    extension = ".jpeg" if "jpeg" in task["file_path"].lower() else ".png"
-                    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=extension)
-                    temp_file.write(image_data)
-                    temp_file.close()
-                    self.temp_image_paths.append(temp_file.name)
-                else:
-                    raise ValueError("Base64 данные не являются строкой")
-            except Exception as e:
-                print(f"Ошибка декодирования Base64 для задачи {i + 1}: {e}")
-                self.temp_image_paths.append(None)
+            if isinstance(base64_string, str):
+                if base64_string.startswith("data:image"):
+                    base64_string = base64_string.split(",")[1]
+                image_data = base64.b64decode(base64_string)
+                extension = ".jpeg" if "jpeg" in task["file_path"].lower() else ".png"
+                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=extension)
+                temp_file.write(image_data)
+                temp_file.close()
+                self.temp_image_paths.append(temp_file.name)
+            else:
+                raise ValueError("Base64 данные не являются строкой")
+            self.temp_image_paths.append(None)
 
     def cleanup_temp_files(self):
         for path in self.temp_image_paths:
@@ -679,14 +666,13 @@ class ExamWindow(QMainWindow):
 
     def closeEvent(self, event):
         self.exam_controller.stop_monitoring()
-        if self.process.state == QProcess.Running:
+        if self.process.state() == QProcess.Running:
             self.process.terminate()
             self.process.waitForFinished(1000)
-            if self.process.state == QProcess.Running:
-                self.process.kill()
+            if self.process.state() == QProcess.Running:
+                    self.process.close() 
         home_dir = Path.home()
         project_folder = home_dir / "koz_project"
         shutil.rmtree(project_folder)
         self.cleanup_temp_files()
         super().closeEvent(event)
-        
