@@ -10,6 +10,7 @@ import sys
 import tempfile
 from controllers.exam_tasks_controller import ExamTasksController
 from pathlib import Path
+import shutil
 
 
 def resource_path(relative_path):
@@ -408,6 +409,9 @@ class ExamWindow(QMainWindow):
         """)
         self.process.readyReadStandardOutput.connect(self.read_output)
         self.run_command_button.clicked.connect(self.run_command)
+        home_dir = Path.home()
+        project_folder = home_dir / "koz_project"
+        self.process.setWorkingDirectory(str(project_folder))
         self.process.start("cmd.exe")
 
         terminal_input_layout.addWidget(self.input)
@@ -600,7 +604,7 @@ class ExamWindow(QMainWindow):
 
     def cleanup_temp_files(self):
         for path in self.temp_image_paths:
-            if path and os.path.exists(path):    
+            if path and os.path.exists(path):
                 os.unlink(path)
 
     def change_task(self, index):
@@ -610,9 +614,9 @@ class ExamWindow(QMainWindow):
                 self.image_label.setPixmap(pixmap.scaled(700, 700, Qt.KeepAspectRatio))
             else:
                 self.image_label.setText(f"Сурет табылмады: {self.task_files[index]['file_path']}")
-            self.notepad.blockSignals(True)
-            self.notepad.setPlainText(self.notes.get(index, ""))
-            self.notepad.blockSignals(False)
+            # self.notepad.blockSignals(True)
+            # self.notepad.setPlainText(self.notes.get(index, ""))
+            # self.notepad.blockSignals(False)
 
     def sidebar_blue_widget(self):
         anim_group = QSequentialAnimationGroup(self)
@@ -675,5 +679,14 @@ class ExamWindow(QMainWindow):
 
     def closeEvent(self, event):
         self.exam_controller.stop_monitoring()
+        if self.process.state == QProcess.Running:
+            self.process.terminate()
+            self.process.waitForFinished(1000)
+            if self.process.state == QProcess.Running:
+                self.process.kill()
+        home_dir = Path.home()
+        project_folder = home_dir / "koz_project"
+        shutil.rmtree(project_folder)
         self.cleanup_temp_files()
         super().closeEvent(event)
+        
